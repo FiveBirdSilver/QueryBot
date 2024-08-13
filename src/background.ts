@@ -16,4 +16,4 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     }
   }
 });
-export {}; // 빈 export 문 추가
+export {};
