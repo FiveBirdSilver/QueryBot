@@ -17,3 +17,4 @@ document.body.appendChild(button);
 button.addEventListener("click", () => {
   chrome.runtime.sendMessage({ action: "open_side_panel" });
 });
+export {};

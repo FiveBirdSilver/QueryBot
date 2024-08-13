@@ -7,7 +7,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
         await chrome.tabs.sendMessage(sender.tab.id, { success: true });
       } catch (error) {
         console.error("Error", error);
-        await chrome.tabs.sendMessage(sender.tab.id, { success: false, errorMessage: error.message });
+        await chrome.tabs.sendMessage(sender.tab.id, { success: false, errorMessage: error });
       }
       return true;
     } else {
@@ -16,3 +16,4 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     }
   }
 });
+export {}; // 빈 export 문 추가
