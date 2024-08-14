@@ -1,18 +1,42 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import ReactDOM from "react-dom";
+import styled from "styled-components";
 
 import Popup from "./popup";
 import useOpen from "./hooks/useOpen";
 
 const App = () => {
   const { open, setOpen } = useOpen();
+  const portalTargetRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    portalTargetRef.current = document.getElementById("gen_Aion_root") as HTMLDivElement;
+  }, []);
 
   return (
     <>
-      <button className="gen_Aion_open" onClick={() => setOpen(!open)} />
-      {open && ReactDOM.createPortal(<Popup />, document.body)}
+      <Button onClick={() => setOpen(!open)}>G</Button>
+      {open && portalTargetRef.current && ReactDOM.createPortal(<Popup />, portalTargetRef.current)}
     </>
   );
 };
 
 export default App;
+
+const Button = styled.button`
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 1000;
+  width: 35px;
+  height: 35px;
+  background-color: #ffffff;
+  color: #444444;
+  border: 1px solid #ececec;
+  font-size: 1.5rem;
+  font-family: Pretendard-R;
+  font-weight: bold;
+`;
