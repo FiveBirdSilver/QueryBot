@@ -15,7 +15,7 @@
   "permissions": ["sidePanel", "storage"],
   "content_scripts": [
     {
-      "matches": ["*://velog.io/*"],
+      "matches": ["<all_urls>"],
       "js": ["content.js"]
     }
   ],
