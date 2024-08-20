@@ -1,11 +1,46 @@
+import { KeyboardEvent, useState } from "react";
 import { styled } from "styled-components";
+
 import { IoPaperPlaneOutline } from "react-icons/io5";
 
-const Input = () => {
+interface InputProps {
+  disabled: boolean;
+  setState: React.Dispatch<React.SetStateAction<{ queries: string; answers: string }[]>>;
+}
+
+const Input = (props: InputProps) => {
+  const { disabled, setState } = props;
+
+  const [value, setValue] = useState<string>("");
+
+  const handleOnSubmit = () => {
+    if (value.trim() === "") return null;
+    else {
+      setState((prev) => [...prev, { queries: value, answers: "" }]);
+      setValue("");
+    }
+  };
+
+  const handleOnKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    // 한글은 자음고 ㅏ모음의 조합으로 끝난상태인지 파악하기 어렵기 때문에 방어 필요
+    if (event.nativeEvent.isComposing) return;
+
+    if (event.code === "Enter") {
+      event.preventDefault();
+      handleOnSubmit();
+    }
+  };
+
   return (
     <StyledInputContainer>
-      <StyledInput placeholder="질문하기" />
-      <StyledInputSubmit />
+      <StyledInput
+        placeholder="질문하기"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => handleOnKeyDown(e)}
+        disabled={disabled}
+      />
+      <StyledInputSubmit onClick={handleOnSubmit} />
     </StyledInputContainer>
   );
 };
@@ -41,4 +76,5 @@ const StyledInputSubmit = styled(IoPaperPlaneOutline)`
   color: #a4a5a6;
   font-size: 1.45rem;
   margin-top: 0.3rem;
+  cursor: pointer;
 `;

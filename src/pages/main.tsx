@@ -2,52 +2,66 @@ import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 import { styled } from "styled-components";
 
-import Input from "../components/elements/Input";
-import Aside from "../components/layouts/Aside";
-import { BasicManual, QnaManual, QueryManual, InsightManual } from "../utils/AssistantManual";
-import Guide from "components/elements/Guide";
+import Input from "components/elements/Input";
+import Aside from "components/layouts/Aside";
+import Message from "components/elements/Message";
 import Card from "components/elements/Card";
 import Label from "components/elements/Label";
+import useChatType from "hooks/useChatType";
+import { BasicManual } from "utils/AssistantManual";
 
 const Main = () => {
   const nowTime = dayjs().format("YYYY. M. D hh:mm A");
+  // 챗봇 타입
   const [selectChat, setselectChat] = useState<string>("");
+  // 카테고리 타입
+  const [selectCategory, setselectCategory] = useState<string>("");
 
-  const showSelectChat = useMemo(() => {
-    if (selectChat === "qna")
-      return (
-        <>
-          <Guide text={QnaManual.text} />
-          <Label data={QnaManual.category} />
-        </>
-      );
-    if (selectChat === "query")
-      return (
-        <>
-          <Guide text={QueryManual.text} />
-          <Label data={QueryManual.category} />
-        </>
-      );
-    if (selectChat === "insight")
-      return (
-        <>
-          <Guide text={InsightManual.text} />
-          <Label data={InsightManual.category} />
-        </>
-      );
-  }, [selectChat]);
+  // 사용자 프롬포트
+  const [conversation, setConversation] = useState<{ queries: string; answers: string }[]>([]);
 
+  const chatType = useChatType(selectChat);
+
+  // qna / query / insight 선택하면 설명 + 추천 카테고리 보여주는 함수
+  const showChatOverview = useMemo(() => {
+    if (!chatType) return null;
+
+    return (
+      <>
+        <Message text={chatType.text} type="chat" />
+        <Label data={chatType.category} active={selectCategory} setActive={setselectCategory} />
+      </>
+    );
+  }, [selectChat, selectCategory, setselectCategory]);
+
+  // 카테고리 선택하면 설명 보여주는 함수
+  const showCategoryDetails = useMemo(() => {
+    if (!chatType) return null;
+
+    const tmpMsg = chatType.category.find((v) => v.id === selectCategory)?.text;
+
+    if (tmpMsg) return <Message text={tmpMsg} type="chat" />;
+  }, [selectCategory, setselectCategory]);
+
+  console.log(selectChat);
   return (
     <MainContainer>
       <Aside />
       <MainWrppaer>
         <NowTimeBox>{nowTime}</NowTimeBox>
         <AssistantContainer>
-          <Guide text={BasicManual} />
-          <Card setState={setselectChat} active={selectChat} />
-          {showSelectChat}
+          <Message text={BasicManual} type="chat" />
+          <Card setActive={setselectChat} active={selectChat} />
+          {showChatOverview}
+          <div>
+            {showCategoryDetails}
+            {/* 생각해보니까 굳이 나눌 필요 있나..?  */}
+            {conversation.map(({ queries, answers }) => (
+              <Message text={queries} type="user" />
+            ))}
+          </div>
         </AssistantContainer>
-        <Input />
+        <Input setState={setConversation} disabled={selectChat === ""} />
       </MainWrppaer>
     </MainContainer>
   );
@@ -74,6 +88,9 @@ const MainWrppaer = styled.div`
   align-items: center;
   overflow-y: auto;
   margin-bottom: 70px;
+
+  scrollbar-width: thin;
+  scrollbar-color: #cdced0 #ffffff;
 `;
 
 const NowTimeBox = styled.div`
@@ -90,5 +107,5 @@ const AssistantContainer = styled.div`
   color: #444444;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 30px;
 `;

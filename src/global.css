@@ -5,6 +5,18 @@
   font-style: normal;
 }
 
+root,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#gen_Aion_root {
+  background-color: #1a1a1a;
+  width: 100vw;
+  height: 100vh;
+}
+
 #gen_Aion_root * {
   font-family: Pretendard-R !important;
 }

@@ -9,7 +9,7 @@ interface OpenType {
 
 const useOpen = create<OpenType>((set) => ({
   open: false,
-  setOpen: (open) => set((state) => ({ open: !state.open })),
+  setOpen: () => set((state) => ({ open: !state.open })),
   condition: "basic",
   setCondition: (condition) => set({ condition }),
 }));

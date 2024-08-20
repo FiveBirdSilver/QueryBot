@@ -49,7 +49,7 @@ const AisdeContaniner = styled.div.attrs<{ condition: "basic" | "wide" }>((props
   display: flex;
   justify-content: space-between;
   flex-direction: column;
-  margin: 0 0 25px 10px;
+  margin: 0 0 25px 5px;
   border-radius: 0.3rem;
   color: #cdced0;
   font-size: 1rem;
@@ -65,6 +65,7 @@ const AsideWrapper = styled.div`
   flex-direction: column;
   gap: 25px;
   width: 100%;
+  align-items: center;
 `;
 
 const StyleMenu = styled.div`

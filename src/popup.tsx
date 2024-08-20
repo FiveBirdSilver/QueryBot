@@ -9,7 +9,7 @@ const Popup = () => {
   const { condition } = useOpen();
 
   return (
-    <PopupContainer condition={condition}>
+    <PopupContainer $condition={condition}>
       <Header />
       <Main />
       <Footer />
@@ -19,15 +19,15 @@ const Popup = () => {
 
 export default Popup;
 
-const PopupContainer = styled.div<{ condition: "basic" | "wide" }>`
+const PopupContainer = styled.div<{ $condition: "basic" | "wide" }>`
   position: fixed;
   background-color: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 1rem;
   bottom: 5rem;
   right: 1.25rem;
-  left: ${({ condition }) => (condition === "wide" ? "1.25rem" : "auto")};
-  width: ${({ condition }) => (condition === "wide" ? "-webkit-fill-available" : "25rem")};
-  height: ${({ condition }) => (condition === "wide" ? "85%" : "80%")};
+  left: ${(props) => (props.$condition === "wide" ? "1.25rem" : "auto")};
+  width: ${(props) => (props.$condition === "wide" ? "-webkit-fill-available" : "26rem")};
+  height: 85%;
   z-index: 10000;
 `;
