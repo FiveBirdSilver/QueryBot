@@ -5,8 +5,8 @@
   font-style: normal;
 }
 
-#gen_Aion_root {
-  font-family: Pretendard-R;
+#gen_Aion_root * {
+  font-family: Pretendard-R !important;
 }
 
 #gen_Aion_root p {

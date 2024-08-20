@@ -1,24 +1,29 @@
 import { styled } from "styled-components";
 import { RiFullscreenFill, RiCloseLargeLine } from "react-icons/ri";
+import { FaMinus } from "react-icons/fa6";
 import useOpen from "../../hooks/useOpen";
 
 const Header = () => {
-  const { open, setOpen } = useOpen();
+  const { open, setOpen, condition, setCondition } = useOpen();
 
   return (
-    <HeaderContaniner>
+    <HeaderContainer>
       <HeaderTitle>GenAIon</HeaderTitle>
       <HeaderIcons>
-        <RiFullscreenFill />
+        {condition === "wide" ? (
+          <FaMinus onClick={() => setCondition("basic")} />
+        ) : (
+          <RiFullscreenFill onClick={() => setCondition("wide")} />
+        )}
         <RiCloseLargeLine onClick={() => setOpen(!open)} />
       </HeaderIcons>
-    </HeaderContaniner>
+    </HeaderContainer>
   );
 };
 
 export default Header;
 
-const HeaderContaniner = styled.div`
+const HeaderContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -44,5 +49,7 @@ const HeaderIcons = styled.div`
 
   svg {
     cursor: pointer;
+    font-size: 1.25rem;
+    color: #606060;
   }
 `;

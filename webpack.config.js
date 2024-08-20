@@ -15,6 +15,9 @@ module.exports = {
     filename: "[name].js",
   },
   resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "src"),
+    },
     extensions: [".tsx", ".ts", ".js"],
     plugins: [
       new TsconfigPathsPlugin({
