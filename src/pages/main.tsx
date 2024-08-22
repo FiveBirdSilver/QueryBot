@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { styled } from "styled-components";
 
 import Input from "components/elements/Input";
@@ -9,9 +9,11 @@ import Card from "components/elements/Card";
 import Label from "components/elements/Label";
 import useChatType from "hooks/useChatType";
 import useChatStream from "hooks/useChatStream";
+import useRandomId from "hooks/useRandomId";
 import { BasicManual } from "utils/constants";
 
 const Main = () => {
+  const scrollEndRef = useRef<HTMLDivElement | null>(null);
   const nowTime = dayjs().format("YYYY. M. D hh:mm A");
   // 챗봇 타입
   const [selectChat, setselectChat] = useState<string>("");
@@ -21,9 +23,16 @@ const Main = () => {
   // 사용자 프롬포트
   const [chatHistory, setChatHistory] = useState<{ queries: string; answers: string }[]>([]);
 
+  // 유효 아이디
+  const { id } = useRandomId();
+
   const chatType = useChatType(selectChat);
 
-  const { messages } = useChatStream({ url: "/qna", queries: chatHistory[chatHistory.length - 1]?.queries });
+  const { messages } = useChatStream({
+    url: `/${selectChat}`,
+    sessionId: id,
+    queries: chatHistory[chatHistory.length - 1]?.queries,
+  });
 
   // qna / query / insight 선택하면 설명 + 추천 카테고리 보여주는 함수
   const showChatOverview = useMemo(() => {
@@ -32,11 +41,18 @@ const Main = () => {
     return (
       <Message
         text={chatType.text}
-        type="default"
-        children={<Label data={chatType.category} active={selectCategory} setActive={setselectCategory} />}
+        type="basic"
+        children={
+          <Label
+            data={chatType.category}
+            active={selectCategory}
+            setActive={setselectCategory}
+            disabled={chatHistory.length > 0}
+          />
+        }
       />
     );
-  }, [selectChat, selectCategory, setselectCategory]);
+  }, [chatHistory, selectChat, selectCategory, setselectCategory]);
 
   // 카테고리 선택하면 설명 보여주는 함수
   const showCategoryDetails = useMemo(() => {
@@ -44,7 +60,7 @@ const Main = () => {
 
     const tmpMsg = chatType.category.find((v: any) => v.id === selectCategory)?.text;
 
-    if (tmpMsg) return <Message text={tmpMsg} type="default" />;
+    if (tmpMsg) return <Message text={tmpMsg} type="basic" />;
   }, [selectCategory, setselectCategory]);
 
   // 질문에 대한 답변이 쌓임
@@ -56,11 +72,21 @@ const Main = () => {
       const lastIndex = updatedHistory.length - 1;
 
       updatedHistory[lastIndex].answers = messages.join("");
-      // updatedHistory[lastIndex].loading = false; // 로딩 완료로 상태 업데이트
 
       return updatedHistory;
     });
   }, [messages]);
+
+  // 자동 스크롤 감지
+  useEffect(() => {
+    const scrollToBottom = () => {
+      if (scrollEndRef.current) {
+        scrollEndRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+
+    setTimeout(scrollToBottom, 0);
+  }, [messages, chatHistory]);
 
   return (
     <MainContainer>
@@ -70,8 +96,8 @@ const Main = () => {
         <AssistantContainer>
           <Message
             text={BasicManual}
-            type="default"
-            children={<Card setActive={setselectChat} active={selectChat} />}
+            type="basic"
+            children={<Card setActive={setselectChat} active={selectChat} disabled={chatHistory.length > 0} />}
           />
           {showChatOverview}
           {showCategoryDetails}
@@ -83,6 +109,7 @@ const Main = () => {
           ))}
         </AssistantContainer>
         <Input setState={setChatHistory} disabled={selectChat === ""} />
+        <div ref={scrollEndRef}></div>
       </MainWrppaer>
     </MainContainer>
   );
@@ -111,7 +138,7 @@ const MainWrppaer = styled.div`
   overflow-x: hidden;
   margin: 20px 0 70px 0;
   scrollbar-width: thin;
-  scrollbar-color: #b8b8b8 #131314;
+  scrollbar-color: #444654 #131314;
 `;
 
 const NowTimeBox = styled.div`

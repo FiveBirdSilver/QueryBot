@@ -7,7 +7,6 @@ import useOpen from "../../hooks/useOpen";
 
 const Aside = () => {
   const { condition } = useOpen();
-  console.log(condition);
 
   return (
     <AisdeContaniner condition={condition}>

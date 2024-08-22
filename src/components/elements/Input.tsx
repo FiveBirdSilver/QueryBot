@@ -1,7 +1,8 @@
-import { KeyboardEvent, useState } from "react";
+import { KeyboardEvent, useEffect, useRef, useState } from "react";
 import { styled } from "styled-components";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { IoArrowUpCircle } from "react-icons/io5";
+import TextareaAutosize from "react-textarea-autosize";
 
 interface InputProps {
   disabled: boolean;
@@ -10,7 +11,6 @@ interface InputProps {
 
 const Input = (props: InputProps) => {
   const { disabled, setState } = props;
-
   const [value, setValue] = useState<string>("");
 
   const handleOnSubmit = () => {
@@ -21,7 +21,7 @@ const Input = (props: InputProps) => {
     }
   };
 
-  const handleOnKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+  const handleOnKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     // 한글은 자음과 모음의 조합으로 끝난상태인지 파악하기 어렵기 때문에 방어 필요
     if (event.nativeEvent.isComposing) return;
 
@@ -33,14 +33,14 @@ const Input = (props: InputProps) => {
 
   return (
     <StyledInputContainer>
+      <StyledAddFileIcon />
       <StyledInputWrppaer>
-        <StyledAddFileIcon />
         <StyledInput
-          placeholder="질문하기"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => handleOnKeyDown(e)}
           disabled={disabled}
+          placeholder="질문하기"
         />
         <StyledSubmitIcon onClick={handleOnSubmit} />
       </StyledInputWrppaer>
@@ -63,21 +63,27 @@ const StyledInputContainer = styled.div`
 
 const StyledInputWrppaer = styled.div`
   position: relative;
-  display: flex;
+  display: grid;
   width: 100%;
-  gap: 10px;
+  grid-template-columns: 9fr 1fr;
+  align-items: center;
+  background-color: #1e1f20;
+  border-radius: 4px;
 `;
 
-const StyledInput = styled.input`
-  height: 30px;
+const StyledInput = styled(TextareaAutosize)`
   width: -webkit-fill-available;
   outline: none;
   border: none;
-  background-color: #1E1F20;
   color : #cdced0;
-  border-radius: 4px;
-  padding-left: 8px;
+  padding: 10px;
+  resize : none;
   font-size: 0.765rem;
+  max-height : 150px;
+  background-color: transparent;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #444654 #1e1f20;
 
   &::placeholder {
     color: #cdced0;
@@ -94,8 +100,6 @@ const StyledAddFileIcon = styled(AiOutlinePlusCircle)`
 
 const StyledSubmitIcon = styled(IoArrowUpCircle)`
   color: #4b89d4;
-  position: absolute;
   font-size: 1.45rem;
-  right: 8px;
-  top: 5px;
+  cursor: pointer;
 `;

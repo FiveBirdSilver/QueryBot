@@ -2,16 +2,27 @@ import { useState, useEffect } from "react";
 
 interface ChatStreamProps {
   url: string;
+  sessionId: string;
   queries: string;
 }
 
 const useChatStream = (props: ChatStreamProps) => {
-  const { url, queries } = props;
+  const { url, sessionId, queries } = props;
   const baseUrl = "https://chatbot-api-ver2-xbuguatioa-du.a.run.app/api";
 
+  // console.log(sessionId);
   const [messages, setMessages] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
+  function generateRandomNumericId() {
+    let randomId = "";
+    for (let i = 0; i < 10; i++) {
+      const randomDigit = Math.floor(Math.random() * 10);
+      randomId += randomDigit;
+    }
+    return randomId;
+  }
+  generateRandomNumericId();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -22,7 +33,7 @@ const useChatStream = (props: ChatStreamProps) => {
           method: "POST",
           body: JSON.stringify({
             user_input: queries,
-            session_id: "1123451000",
+            session_id: sessionId,
           }),
         });
         const reader = response.body?.getReader();
@@ -39,7 +50,7 @@ const useChatStream = (props: ChatStreamProps) => {
         readStream();
         setLoading(false);
       } catch (err) {
-        console.log(err);
+        console.error(err);
         // setError(err);
       }
     };

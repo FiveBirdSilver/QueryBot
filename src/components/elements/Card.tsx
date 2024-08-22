@@ -4,16 +4,21 @@ import { SelectManual } from "utils/constants";
 interface CardProps {
   active: string;
   setActive: React.Dispatch<React.SetStateAction<string>>;
+  disabled: boolean;
 }
 
 const Card = (props: CardProps) => {
-  const { active, setActive } = props;
+  const { active, setActive, disabled } = props;
 
   return (
     <CardContainer>
-      {/* <CardContent>Select Assistant or chat</CardContent> */}
       {SelectManual.map((v) => (
-        <CardWrapper key={v.id} $status={active === v.id ? "active" : "inactive"} onClick={() => setActive(v.id)}>
+        <CardWrapper
+          key={v.id}
+          $status={active === v.id ? "active" : "inactive"}
+          $disabled={disabled ? "disabled" : "abled"}
+          onClick={() => setActive(v.id)}
+        >
           <CardBox>
             <CardTitle $status={active === v.id ? "active" : "inactive"}>{v.title}</CardTitle>
             <CardContent $status={active === v.id ? "active" : "inactive"}>{v.content}</CardContent>
@@ -33,7 +38,7 @@ const CardContainer = styled.div`
   gap: 10px;
 `;
 
-const CardWrapper = styled.div<{ $status: "active" | "inactive" }>`
+const CardWrapper = styled.div<{ $status: "active" | "inactive"; $disabled: "disabled" | "abled" }>`
   display: flex;
   border-radius: 4px;
   text-align: center;
@@ -43,6 +48,7 @@ const CardWrapper = styled.div<{ $status: "active" | "inactive" }>`
   cursor: pointer;
   color: #131314;
   background-color: ${(props) => (props.$status === "active" ? "#C3D9FF" : "#343541")};
+  pointer-events: ${(props) => (props.$disabled === "disabled" ? "none" : "all")};
 `;
 
 const CardBox = styled.div`
