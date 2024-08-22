@@ -15,15 +15,14 @@ const FooterContainer = styled.div`
   bottom: 0;
   font-size: 0.575rem;
   z-index: 1;
-  background: #fff;
+  background-color: #131314;
   width: 100%;
   text-align: center;
   border-bottom-left-radius: 1rem;
   border-bottom-right-radius: 1rem;
   margin: auto;
   padding: 6px 0;
-  border: 1px soli;
-  color: #cdced0;
+  color: #444654;
 `;
 
 const FooterText = styled.p`

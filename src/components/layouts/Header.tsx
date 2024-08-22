@@ -28,9 +28,8 @@ const HeaderContainer = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 12px;
-  color: #000000;
-  background-color: #ffffff;
-  border-bottom: 1px solid #ececec;
+  color: #ffffff;
+  background-color: #1e1f20;
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
   position: relative;
@@ -50,6 +49,6 @@ const HeaderIcons = styled.div`
   svg {
     cursor: pointer;
     font-size: 1.25rem;
-    color: #606060;
+    color: #ffffff;
   }
 `;

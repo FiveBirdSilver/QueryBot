@@ -19,14 +19,11 @@ const Label = (props: CardProps) => {
 
   return (
     <LabelContainer>
-      <LabelContent>추천 카테고리</LabelContent>
-      <LabelContainer>
-        {data.map((v) => (
-          <LabelWrapper key={v.id} $status={active === v.id ? "active" : "inactive"} onClick={() => handleClick(v.id)}>
-            {v.value}
-          </LabelWrapper>
-        ))}
-      </LabelContainer>
+      {data.map((v) => (
+        <LabelWrapper key={v.id} $status={active === v.id ? "active" : "inactive"} onClick={() => handleClick(v.id)}>
+          {v.value}
+        </LabelWrapper>
+      ))}
     </LabelContainer>
   );
 };
@@ -34,8 +31,9 @@ const Label = (props: CardProps) => {
 export default Label;
 
 const LabelContainer = styled.div`
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
+  flex-wrap: wrap;
+  padding-top: 8px;
   gap: 5px;
 `;
 
@@ -43,11 +41,8 @@ const LabelWrapper = styled.div<{ $status: "active" | "inactive" }>`
   border-radius: 4px;
   padding: 4px;
   cursor: pointer;
-  font-size: 0.785rem;
+  font-size: 0.765rem;
   width: max-content;
-  border: ${(props) => (props.$status === "active" ? "1px solid #9747FF" : "1px solid #f3f3f4")};
-`;
-
-const LabelContent = styled.p`
-  font-size: 0.785rem;
+  color: #1e1f20;
+  background-color: ${(props) => (props.$status === "active" ? "#C3D9FF" : "#f3f3f5")};
 `;

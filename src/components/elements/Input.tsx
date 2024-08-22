@@ -1,7 +1,7 @@
 import { KeyboardEvent, useState } from "react";
 import { styled } from "styled-components";
-
-import { IoPaperPlaneOutline } from "react-icons/io5";
+import { AiOutlinePlusCircle } from "react-icons/ai";
+import { IoArrowUpCircle } from "react-icons/io5";
 
 interface InputProps {
   disabled: boolean;
@@ -22,7 +22,7 @@ const Input = (props: InputProps) => {
   };
 
   const handleOnKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    // 한글은 자음고 ㅏ모음의 조합으로 끝난상태인지 파악하기 어렵기 때문에 방어 필요
+    // 한글은 자음과 모음의 조합으로 끝난상태인지 파악하기 어렵기 때문에 방어 필요
     if (event.nativeEvent.isComposing) return;
 
     if (event.code === "Enter") {
@@ -33,14 +33,17 @@ const Input = (props: InputProps) => {
 
   return (
     <StyledInputContainer>
-      <StyledInput
-        placeholder="질문하기"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={(e) => handleOnKeyDown(e)}
-        disabled={disabled}
-      />
-      <StyledInputSubmit onClick={handleOnSubmit} />
+      <StyledInputWrppaer>
+        <StyledAddFileIcon />
+        <StyledInput
+          placeholder="질문하기"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => handleOnKeyDown(e)}
+          disabled={disabled}
+        />
+        <StyledSubmitIcon onClick={handleOnSubmit} />
+      </StyledInputWrppaer>
     </StyledInputContainer>
   );
 };
@@ -54,7 +57,14 @@ const StyledInputContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0 10px 0 25px;
+  padding: 0 20px;
+  gap: 10px;
+`;
+
+const StyledInputWrppaer = styled.div`
+  position: relative;
+  display: flex;
+  width: 100%;
   gap: 10px;
 `;
 
@@ -62,7 +72,9 @@ const StyledInput = styled.input`
   height: 30px;
   width: -webkit-fill-available;
   outline: none;
-  border: 1px solid #cdced0;
+  border: none;
+  background-color: #1E1F20;
+  color : #cdced0;
   border-radius: 4px;
   padding-left: 8px;
   font-size: 0.765rem;
@@ -70,11 +82,20 @@ const StyledInput = styled.input`
   &::placeholder {
     color: #cdced0;
   }
+  f
 `;
 
-const StyledInputSubmit = styled(IoPaperPlaneOutline)`
-  color: #a4a5a6;
+const StyledAddFileIcon = styled(AiOutlinePlusCircle)`
+  color: #444654;
   font-size: 1.45rem;
   margin-top: 0.3rem;
   cursor: pointer;
+`;
+
+const StyledSubmitIcon = styled(IoArrowUpCircle)`
+  color: #4b89d4;
+  position: absolute;
+  font-size: 1.45rem;
+  right: 8px;
+  top: 5px;
 `;

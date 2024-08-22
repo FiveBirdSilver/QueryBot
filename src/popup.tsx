@@ -27,7 +27,7 @@ const PopupContainer = styled.div<{ $condition: "basic" | "wide" }>`
   bottom: 5rem;
   right: 1.25rem;
   left: ${(props) => (props.$condition === "wide" ? "1.25rem" : "auto")};
-  width: ${(props) => (props.$condition === "wide" ? "-webkit-fill-available" : "26rem")};
+  width: ${(props) => (props.$condition === "wide" ? "-webkit-fill-available" : "27rem")};
   height: 85%;
   z-index: 10000;
 `;

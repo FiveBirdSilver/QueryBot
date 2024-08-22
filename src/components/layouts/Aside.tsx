@@ -7,6 +7,7 @@ import useOpen from "../../hooks/useOpen";
 
 const Aside = () => {
   const { condition } = useOpen();
+  console.log(condition);
 
   return (
     <AisdeContaniner condition={condition}>
@@ -30,7 +31,7 @@ const Aside = () => {
           </>
         )}
       </AsideWrapper>
-      <FaCircleQuestion />
+      <FaCircleQuestion color="#4B89D4" />
     </AisdeContaniner>
   );
 };
@@ -39,24 +40,24 @@ export default Aside;
 
 const AisdeContaniner = styled.div.attrs<{ condition: "basic" | "wide" }>((props) => ({
   style: {
-    alignItems: props.condition ? "start" : "center",
+    alignItems: props.condition === "wide" ? "start" : "center",
   },
 }))<{ condition: "basic" | "wide" }>`
   width: -webkit-fill-available;
   height: -webkit-fill-available;
-  background-color: #f3f3f4;
+  background-color: #1e1f20;
   z-index: 3;
   display: flex;
   justify-content: space-between;
   flex-direction: column;
-  margin: 0 0 25px 5px;
-  border-radius: 0.3rem;
-  color: #cdced0;
+  color: #ffffff;
   font-size: 1rem;
-  padding: 15px;
+  padding: 15px 10px;
+  border-bottom-left-radius: 1rem;
 
   svg {
     cursor: pointer;
+    font-size: 18px;
   }
 `;
 

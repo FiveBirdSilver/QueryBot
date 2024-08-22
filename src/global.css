@@ -5,22 +5,19 @@
   font-style: normal;
 }
 
-root,
-body {
-  margin: 0;
-  padding: 0;
-}
-
-#gen_Aion_root {
-  background-color: #1a1a1a;
-  width: 100vw;
-  height: 100vh;
-}
-
 #gen_Aion_root * {
   font-family: Pretendard-R !important;
 }
 
 #gen_Aion_root p {
   margin: 0;
+}
+
+.ant-skeleton .ant-skeleton-header .ant-skeleton-avatar-lg {
+  width: 25px !important;
+  height: 25px !important;
+}
+
+.ant-skeleton .ant-skeleton-content .ant-skeleton-title {
+  margin-top: 5px;
 }

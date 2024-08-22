@@ -13,7 +13,6 @@ export const SelectManual = [
 
 export const QnaManual = {
   text: "QnA Assistant에서는 추천 카테고리를 선택하여 질문을 구체화하거나 채팅을 통해 GA4 관련 내용에 대해 답변할 수 있습니다.",
-
   category: [
     {
       id: "getting-started",
