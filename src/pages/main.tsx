@@ -126,7 +126,7 @@ const MainContainer = styled.div`
   border-radius: 1rem;
   padding-top: 45px;
   display: grid;
-  grid-template-columns: 1fr 9fr;
+  grid-template-columns: 1.5fr 8.5fr;
 `;
 
 const MainWrppaer = styled.div`
