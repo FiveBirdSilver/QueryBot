@@ -12,16 +12,10 @@
 #gen_Aion_root p {
   margin: 0;
 }
-
+/* 
 .ant-skeleton .ant-skeleton-header .ant-skeleton-avatar-lg {
   width: 25px !important;
   height: 25px !important;
-  /* background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.2) 25%,
-    rgba(255, 255, 255, 0.3) 37%,
-    rgba(255, 255, 255, 0.2) 63%
-  ); */
 }
 
 .ant-skeleton .ant-skeleton-content .ant-skeleton-title {
@@ -32,7 +26,7 @@
   margin-block-start: 10px !important;
 }
 
-/* Skeleton Loader의 배경을 설정하고 애니메이션 적용 */
+Skeleton Loader의 배경을 설정하고 애니메이션 적용
 .ant-skeleton.ant-skeleton-active .ant-skeleton-title,
 .ant-skeleton.ant-skeleton-active .ant-skeleton-paragraph > li,
 .ant-skeleton.ant-skeleton-active .ant-skeleton-avatar,
@@ -58,7 +52,7 @@
   100% {
     background-position: 100% 0, 0 0, 120px 0, 120px 40px, 120px 80px, 120px 120px;
   }
-}
+} */
 
 .ant-tooltip {
   z-index: 10000 !important;
@@ -69,4 +63,25 @@
   color: #1e1f20 !important;
   border-radius: 2px !important;
   padding: 0;
+}
+
+@keyframes loading {
+  0% {
+    transform: translateX(0);
+  }
+  50%,
+  100% {
+    transform: translateX(460px);
+  }
+}
+
+.skeleton-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30px;
+  height: 100%;
+  background: linear-gradient(to right, #f2f2f2, #ddd, #f2f2f2);
+  animation: loading 2s infinite linear;
 }

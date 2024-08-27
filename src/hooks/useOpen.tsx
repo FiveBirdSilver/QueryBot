@@ -1,17 +1,17 @@
-import { create } from "zustand";
+import { create } from 'zustand'
 
-interface OpenType {
-  open: boolean;
-  setOpen: (state: boolean) => void;
-  condition: "basic" | "wide";
-  setCondition: (state: "basic" | "wide") => void;
+interface OpenProps {
+  open: boolean
+  setOpen: (state: boolean) => void
+  condition: 'basic' | 'wide'
+  setCondition: (state: 'basic' | 'wide') => void
 }
 
-const useOpen = create<OpenType>((set) => ({
+const useOpen = create<OpenProps>((set) => ({
   open: false,
   setOpen: () => set((state) => ({ open: !state.open })),
-  condition: "basic",
+  condition: 'basic',
   setCondition: (condition) => set({ condition }),
-}));
+}))
 
-export default useOpen;
+export default useOpen

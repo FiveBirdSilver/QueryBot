@@ -6,7 +6,7 @@ const useChatType = (selectChat: string) => {
     switch (selectChat) {
       case "qna":
         return QnaManual;
-      case "query":
+      case "sql":
         return QueryManual;
       case "insight":
         return InsightManual;

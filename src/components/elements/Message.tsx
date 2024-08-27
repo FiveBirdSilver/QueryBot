@@ -1,73 +1,58 @@
-import { useEffect, useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import { styled } from "styled-components";
-import { Button, Skeleton, Tooltip } from "antd";
-import { MdOutlineFileDownload } from "react-icons/md";
-import { PiCopySimple } from "react-icons/pi";
-import { FiMoreHorizontal } from "react-icons/fi";
-import { TbRefresh } from "react-icons/tb";
-import { IoMdCheckmark } from "react-icons/io";
+import React, { useEffect, useRef, useState } from 'react'
+import { styled } from 'styled-components'
+import { MdOutlineFileDownload } from 'react-icons/md'
+import { PiCopySimple } from 'react-icons/pi'
+import { FiMoreHorizontal } from 'react-icons/fi'
+import { TbRefresh } from 'react-icons/tb'
+import { IoMdCheckmark } from 'react-icons/io'
 
-import copyToClipboard from "utils/copyToClipboard";
+import Skeleton from 'components/elements/Skeleton'
+import copyToClipboard from 'utils/copyToClipboard'
+import MarkdownRenderer from 'utils/markDownRender'
+import useTypingAnimation from 'hooks/useTypingAnimation'
 
 interface MessageProps {
-  type: "basic" | "queries" | "answers";
-  text: string;
-  children?: React.ReactNode;
+  type: 'basic' | 'queries' | 'answers'
+  text: string
+  children?: React.ReactNode
 }
 
 const Message = (props: MessageProps) => {
-  const { type, text, children } = props;
-  const textIndex = useRef<number>(0);
+  const { type, text, children } = props
+  const typingText = useTypingAnimation(text)
 
-  const [typingText, setTypingText] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isCopied, setIsCopied] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isCopied, setIsCopied] = useState<boolean>(false)
 
   useEffect(() => {
-    if (text && type === "answers") {
-      let timer = setInterval(() => {
-        setTypingText((state) => {
-          if (text?.length <= textIndex.current) {
-            clearInterval(timer);
-            return state;
-          }
-          const newState = text?.slice(0, textIndex.current) + "ㅤ";
-          textIndex.current += 1;
-          return newState;
-        });
-      }, 10);
-      return () => {
-        clearInterval(timer);
-      };
+    if (type === 'basic' || type === 'queries') {
+      setIsLoading(false)
     }
-  }, [text]);
-
-  useEffect(() => {
-    if (type === "basic" || type === "queries") setIsLoading(false);
-    if (type === "answers" && typingText !== "") setIsLoading(false);
-  }, [typingText]);
+    if (type === 'answers' && typingText !== '') {
+      setIsLoading(false)
+    }
+  }, [typingText, type])
 
   // 답변 복사
   const handleOnCopy = () => {
-    copyToClipboard(text);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
-  };
+    copyToClipboard(text)
+    setIsCopied(true)
+    setTimeout(() => setIsCopied(false), 2000)
+  }
 
   return (
     <AssistantWrapper>
       {isLoading ? (
-        <Skeleton avatar paragraph={{ rows: 2 }} active />
+        <Skeleton />
       ) : (
         <>
           <AssistantTitle $type={type}>
-            <AssistantIcons>{type === "queries" ? "U" : "G"}</AssistantIcons>
-            <span>{type !== "queries" && "GenAIon Chatbot"}</span>
+            <AssistantIcons>{type === 'queries' ? 'U' : 'G'}</AssistantIcons>
+            <span>{type !== 'queries' && 'GenAIon Chatbot'}</span>
           </AssistantTitle>
-          {type === "answers" ? (
+          {type === 'answers' ? (
             <>
-              <AssistantMarkdown>{typingText}</AssistantMarkdown>
+              <MarkdownRenderer>{typingText}</MarkdownRenderer>
               <UtilityIconsContainer>
                 <UtilityIcons>
                   <TbRefresh />
@@ -75,20 +60,12 @@ const Message = (props: MessageProps) => {
                 </UtilityIcons>
                 <UtilityIcons>
                   <MdOutlineFileDownload />
-                  {isCopied ? <IoMdCheckmark /> : <PiCopySimple onClick={handleOnCopy} />}
-                  <Tooltip
-                    placement="bottom"
-                    title={
-                      <MoreTooltip>
-                        <p>메세지 삭제</p>
-                        <hr />
-                        <p>메세지 신고</p>
-                      </MoreTooltip>
-                    }
-                    arrow={false}
-                  >
-                    <FiMoreHorizontal />
-                  </Tooltip>
+                  {isCopied ? (
+                    <IoMdCheckmark />
+                  ) : (
+                    <PiCopySimple onClick={handleOnCopy} />
+                  )}
+                  <FiMoreHorizontal />
                 </UtilityIcons>
               </UtilityIconsContainer>
             </>
@@ -101,18 +78,19 @@ const Message = (props: MessageProps) => {
         </>
       )}
     </AssistantWrapper>
-  );
-};
+  )
+}
 
-export default Message;
+export default Message
 
 const AssistantWrapper = styled.div`
   color: #444444;
-`;
+`
 
-const AssistantTitle = styled.div<{ $type: "basic" | "queries" | "answers" }>`
+const AssistantTitle = styled.div<{ $type: 'basic' | 'queries' | 'answers' }>`
   display: flex;
-  justify-content: ${(props) => (props.$type === "queries" ? "flex-end" : "flex-start")};
+  justify-content: ${(props) =>
+    props.$type === 'queries' ? 'flex-end' : 'flex-start'};
   align-items: center;
   margin-bottom: 10px;
   gap: 10px;
@@ -122,7 +100,7 @@ const AssistantTitle = styled.div<{ $type: "basic" | "queries" | "answers" }>`
     font-weight: bold;
     color: #fff;
   }
-`;
+`
 
 const AssistantIcons = styled.div`
   background-color: rgb(160, 195, 255);
@@ -135,41 +113,33 @@ const AssistantIcons = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
+`
 
-const AssistantContent = styled.div<{ $type: "basic" | "queries" | "answers" }>`
-  margin: ${(props) => (props.$type === "queries" ? " 0 35px 0 10px" : " 0 10px 0 35px")} !important;
-  padding: 12px;
+const AssistantContent = styled.div<{ $type: 'basic' | 'queries' | 'answers' }>`
+  margin: ${(props) =>
+    props.$type === 'queries' ? ' 0 35px 0 10px' : ' 0 10px 0 35px'} !important;
+  padding: 8px 12px;
   font-size: 0.765rem;
   white-space: break-spaces;
   color: #f5f5f5;
-  background-color: ${(props) => (props.$type === "queries" ? "#4B89D4" : "#1E1F20")};
-  border-top-right-radius: ${(props) => (props.$type === "queries" ? 0 : "1rem")};
-  border-top-left-radius: ${(props) => (props.$type === "queries" ? "1rem" : 0)};
+  background-color: ${(props) =>
+    props.$type === 'queries' ? '#4B89D4' : '#1E1F20'};
+  border-top-right-radius: ${(props) =>
+    props.$type === 'queries' ? 0 : '1rem'};
+  border-top-left-radius: ${(props) =>
+    props.$type === 'queries' ? '1rem' : 0};
   border-bottom-left-radius: 1rem;
   border-bottom-right-radius: 1rem;
-`;
-
-const AssistantMarkdown = styled(ReactMarkdown)`
-  margin: 0 10px 0 35px;
-  padding: 12px;
-  font-size: 0.765rem;
   display: flex;
   flex-direction: column;
-  white-space: break-spaces;
-  color: #f5f5f5;
-  background-color: #1e1f20;
-  border-top-right-radius: 1rem;
-  border-bottom-left-radius: 1rem;
-  border-bottom-right-radius: 1rem;
-`;
+`
 
 const UtilityIconsContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 15px 0 35px;
-`;
+  padding: 10px 15px 0 40px;
+`
 
 const UtilityIcons = styled.div`
   display: flex;
@@ -182,20 +152,6 @@ const UtilityIcons = styled.div`
   }
   span {
     color: #f5f5f5;
-    font-size: 0.645rem;
+    font-size: 0.575rem;
   }
-`;
-
-const MoreTooltip = styled.div`
-  hr {
-    border: none;
-    border-top: 1px solid #ccc;
-    margin: 0;
-  }
-  p {
-    margin: 0;
-    font-size: 0.695rem;
-    padding: 2px 4px;
-    cursor: pointer;
-  }
-`;
+`

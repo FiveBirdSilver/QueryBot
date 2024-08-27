@@ -4,7 +4,7 @@ export const BasicManual =
 export const SelectManual = [
   { id: "qna", title: "QnA Assistant", content: "GA4를 사용하는 방법에 대해 질문해보세요." },
   {
-    id: "query",
+    id: "sql",
     title: "Query Assistant",
     content: "SQL문을 생성하고 BigQuery에서 원하는 데이터를 조회하고차트를 생성합니다.",
   },

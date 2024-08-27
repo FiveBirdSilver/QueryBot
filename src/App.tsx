@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
 import ReactDOM from "react-dom";
+import { useRef, useEffect } from "react";
 import styled from "styled-components";
 
 import Popup from "./popup";
