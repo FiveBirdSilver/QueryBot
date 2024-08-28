@@ -1,19 +1,23 @@
-import { styled } from "styled-components";
-import { FaRegSquarePlus, FaCircleQuestion } from "react-icons/fa6";
-import { IoIosArrowDown } from "react-icons/io";
-import { GrHistory } from "react-icons/gr";
+import { styled } from 'styled-components'
+import { FaRegSquarePlus, FaCircleQuestion } from 'react-icons/fa6'
+import { IoIosArrowDown } from 'react-icons/io'
+import { GrHistory } from 'react-icons/gr'
 
-import useOpen from "../../hooks/useOpen";
+import useOpen from '../../hooks/useOpen'
 
-const Aside = () => {
-  const { condition } = useOpen();
+interface AsideProps {
+  onClick: () => void
+}
+const Aside = (props: AsideProps) => {
+  const { onClick } = props
+  const { condition } = useOpen()
 
   return (
-    <AisdeContaniner condition={condition}>
+    <AsideContainer $condition={condition}>
       <AsideWrapper>
-        {condition === "wide" ? (
+        {condition === 'wide' ? (
           <>
-            <StyleMenu>
+            <StyleMenu onClick={onClick}>
               <FaRegSquarePlus />
               <p>New Chat</p>
             </StyleMenu>
@@ -25,25 +29,20 @@ const Aside = () => {
           </>
         ) : (
           <>
-            <FaRegSquarePlus />
+            <FaRegSquarePlus onClick={onClick} />
             <GrHistory />
           </>
         )}
       </AsideWrapper>
-      <FaCircleQuestion color="#4B89D4" />
-    </AisdeContaniner>
-  );
-};
+      <FaCircleQuestion color='#4B89D4' />
+    </AsideContainer>
+  )
+}
 
-export default Aside;
+export default Aside
 
-const AisdeContaniner = styled.div.attrs<{ condition: "basic" | "wide" }>((props) => ({
-  style: {
-    alignItems: props.condition === "wide" ? "start" : "center",
-  },
-}))<{ condition: "basic" | "wide" }>`
-  width: -webkit-fill-available;
-  height: -webkit-fill-available;
+const AsideContainer = styled.div<{ $condition: 'basic' | 'wide' }>`
+  align-items: ${(props) => (props.$condition === 'wide' ? 'start' : 'center')};
   background-color: #1e1f20;
   z-index: 3;
   display: flex;
@@ -51,14 +50,15 @@ const AisdeContaniner = styled.div.attrs<{ condition: "basic" | "wide" }>((props
   flex-direction: column;
   color: #ffffff;
   font-size: 1rem;
-  padding: 15px 10px;
+  padding: ${(props) =>
+    props.$condition === 'wide' ? '15px 20px' : '15px 10px'};
   border-bottom-left-radius: 1rem;
 
   svg {
     cursor: pointer;
-    font-size: 18px;
+    font-size: 14px;
   }
-`;
+`
 
 const AsideWrapper = styled.div`
   display: flex;
@@ -66,17 +66,22 @@ const AsideWrapper = styled.div`
   gap: 25px;
   width: 100%;
   align-items: center;
-`;
+`
 
 const StyleMenu = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  position: relative;
   width: 100%;
-`;
+  display: flex;
+  position: relative;
+  cursor: pointer;
+  gap: 10px;
+  align-items: center;
+
+  p {
+    font-size: 14px;
+  }
+`
 
 const StyleArrowIcons = styled(IoIosArrowDown)`
   position: absolute;
   right: 0;
-`;
+`

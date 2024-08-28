@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { styled } from 'styled-components'
 
 import Input from 'components/elements/Input'
@@ -8,26 +8,35 @@ import Message from 'components/elements/Message'
 import Card from 'components/elements/Card'
 import Label from 'components/elements/Label'
 import Button from 'components/elements/Button'
+import CustomDatePicker from 'components/elements/DatePicker'
 import useChatType from 'hooks/useChatType'
 import useChatStream from 'hooks/useChatStream'
 import useDelayAction from 'hooks/useDelayAction'
 import useRandomId from 'hooks/useRandomId'
 import useScrollToBottom from 'hooks/useScrollToBottom'
-import { BasicManual } from 'utils/constants'
+import { DatePickerManual, BasicManual, BigQueryManual } from 'utils/constants'
 
 const Main = () => {
   const scrollEndRef = useRef<HTMLDivElement | null>(null)
   const nowTime = dayjs().format('YYYY. M. D hh:mm A')
+
   // 챗봇 타입
   const [selectChat, setSelectChat] = useState<string>('')
+
   // 카테고리 타입
   const [selectCategory, setSelectCategory] = useState<string>('')
 
   // 사용자 프롬포트
   const [chatHistory, setChatHistory] = useState<
-    { id: string; queries: string; answers: string }[]
+    {
+      id: string
+      queries: string
+      answers: string
+      source?: string
+    }[]
   >([])
 
+  const [showDatePicker, setShowDatePicker] = useState<boolean>(true)
   const [bigQueryId, setBigQueryId] = useState<string[]>()
 
   // 유효 아이디
@@ -41,6 +50,7 @@ const Main = () => {
     url: `/${selectChat}`,
     sessionId: id,
     queries: chatHistory[chatHistory.length - 1]?.queries,
+    interface_time: chatHistory[chatHistory.length - 1]?.id,
   })
 
   // 채팅의 마지막 데이터
@@ -57,20 +67,31 @@ const Main = () => {
     if (!chatType) return null
 
     return (
-      <Message
-        text={chatType.text}
-        type='basic'
-        children={
-          <Label
-            data={chatType.category}
-            active={selectCategory}
-            setActive={setSelectCategory}
-            disabled={chatHistory.length > 0}
+      <>
+        <Message
+          text={chatType.text}
+          type='basic'
+          children={
+            <Label
+              data={chatType.category}
+              active={selectCategory}
+              setActive={setSelectCategory}
+              disabled={chatHistory.length > 0}
+            />
+          }
+        />
+        {selectChat === 'sql' && showDatePicker && (
+          <Message
+            text={DatePickerManual}
+            type='basic'
+            children={
+              <CustomDatePicker setShowDatePicker={setShowDatePicker} />
+            }
           />
-        }
-      />
+        )}
+      </>
     )
-  }, [chatType, chatHistory, selectCategory, setSelectCategory])
+  }, [chatType, chatHistory, selectCategory, showDatePicker, setSelectCategory])
 
   // 카테고리 선택하면 설명 보여주는 함수
   const showCategoryDetails = useMemo(() => {
@@ -90,25 +111,48 @@ const Main = () => {
     setChatHistory((prev) => {
       const updatedHistory = [...prev]
       const lastIndex = updatedHistory.length - 1
-      updatedHistory[lastIndex].answers = messages.join('')
+      const splitMsg = messages.join('').split('**Reference')
+
+      if (selectChat === 'qna') {
+        updatedHistory[lastIndex].answers = splitMsg[0]
+        updatedHistory[lastIndex].source =
+          splitMsg[1]?.split(': ')[1] !== '[]'
+            ? splitMsg[1]?.split(': ')[1]?.replace(/[\[\]']/g, '')
+            : ''
+      } else updatedHistory[lastIndex].answers = messages.join('')
 
       return updatedHistory
     })
-  }, [chatHistory.length, messages])
+  }, [messages])
 
   // 응답이 완전히 생성된 후 빅쿼리 업로드 확인용 메시지 생성
   useDelayAction(messages, 5000, () => {
     const isSql = lastAnswer?.answers.match(/```sql/g)
     if (selectChat === 'sql' && isSql) {
-      const idArray = isSql?.map((_, index) => `${lastAnswer.id}_${index}`)
-      setBigQueryId(idArray)
+      const id = isSql?.map((_, index) => `${lastAnswer.id}_${index}`)
+      setBigQueryId(id)
+      // setChatHistory((prev) => [
+      //   ...prev,
+      //   {
+      //     id: id[0],
+      //     queries: '',
+      //     answers: BigQueryManual,
+      //     action: true,
+      //   },
+      // ])
     }
   })
 
-  console.log(messages)
+  // 새로운 채팅
+  const setNewChat = () => {
+    setChatHistory([])
+    setSelectChat('')
+    setBigQueryId(undefined)
+  }
+
   return (
     <MainContainer>
-      <Aside />
+      <Aside onClick={() => setNewChat()} />
       <MainWrapper>
         <NowTimeBox>{nowTime}</NowTimeBox>
         <AssistantContainer>
@@ -125,15 +169,20 @@ const Main = () => {
           />
           {showChatOverview}
           {showCategoryDetails}
-          {chatHistory.map(({ queries, answers }, index) => (
-            <StyledChatHistory key={index}>
-              <Message key={`queries_${index}`} text={queries} type='queries' />
-              <Message key={`answers_${index}`} text={answers} type='answers' />
+          {chatHistory.map(({ id, queries, answers, source }) => (
+            <StyledChatHistory key={id}>
+              <Message key={`queries_${id}`} text={queries} type='queries' />
+              <Message
+                key={`answers_${id}`}
+                type='answers'
+                text={answers}
+                source={source}
+              />
             </StyledChatHistory>
           ))}
           {bigQueryId && (
             <Message
-              text={'빅쿼리에 업로드하여 데이터를 조회하시겠습니까?'}
+              text={BigQueryManual}
               type='basic'
               children={
                 <ButtonContainer>
@@ -171,7 +220,7 @@ const MainContainer = styled.div`
   position: absolute;
   top: 0;
   border-radius: 1rem;
-  padding-top: 45px;
+  padding-top: 40px;
   display: grid;
   grid-template-columns: 1.5fr 8.5fr;
 `
@@ -211,7 +260,6 @@ const StyledChatHistory = styled.div`
   flex-direction: column;
   gap: 20px;
 `
-
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;

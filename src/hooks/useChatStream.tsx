@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react'
+import useDate from 'hooks/useDate'
 
 interface ChatStreamProps {
   url: string
   sessionId: string
   queries: string
+  interface_time: string
 }
 
 const useChatStream = (props: ChatStreamProps) => {
-  const { url, sessionId, queries } = props
+  const { url, sessionId, interface_time, queries } = props
+  const { date } = useDate()
   const baseUrl = 'https://chatbot-api-ver2-xbuguatioa-du.a.run.app/api'
 
   const [messages, setMessages] = useState<string[]>([])
@@ -22,8 +25,10 @@ const useChatStream = (props: ChatStreamProps) => {
         const response = await fetch(baseUrl + url, {
           method: 'POST',
           body: JSON.stringify({
-            user_input: queries,
-            session_id: sessionId,
+            user_input:
+              url === '/sql' && date !== '' ? `${date} ${queries}` : queries,
+            session_id: sessionId, //> user_id,
+            // interface_time
           }),
         })
         const reader = response.body?.getReader()
@@ -44,7 +49,9 @@ const useChatStream = (props: ChatStreamProps) => {
         // setError(err);
       }
     }
-    if (queries) fetchData()
+    if (queries) {
+      fetchData()
+    }
   }, [url, sessionId, queries])
 
   return { messages, loading }

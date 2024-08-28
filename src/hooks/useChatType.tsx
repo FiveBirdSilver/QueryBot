@@ -1,21 +1,19 @@
-import { InsightManual, QnaManual, QueryManual } from "../utils/constants";
-import { useMemo } from "react";
+import { InsightManual, QnaManual, QueryManual } from '../utils/constants'
+import { useMemo } from 'react'
 
 const useChatType = (selectChat: string) => {
-  const manualType = useMemo(() => {
+  return useMemo(() => {
     switch (selectChat) {
-      case "qna":
-        return QnaManual;
-      case "sql":
-        return QueryManual;
-      case "insight":
-        return InsightManual;
+      case 'qna':
+        return QnaManual
+      case 'sql':
+        return QueryManual
+      case 'insight':
+        return InsightManual
       default:
-        return null;
+        return null
     }
-  }, [selectChat]);
+  }, [selectChat])
+}
 
-  return manualType;
-};
-
-export default useChatType;
+export default useChatType

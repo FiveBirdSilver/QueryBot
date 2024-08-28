@@ -5,64 +5,28 @@
   font-style: normal;
 }
 
-#gen_Aion_root * {
-  font-family: Pretendard-R !important;
+#gen_AIon_root * {
+  font-family: Pretendard-R sans-serif !important;
 }
 
-#gen_Aion_root p {
+#gen_AIon_root p {
   margin: 0;
 }
-/* 
-.ant-skeleton .ant-skeleton-header .ant-skeleton-avatar-lg {
-  width: 25px !important;
-  height: 25px !important;
+
+#gen_AIon_root a {
+  color: #4b89d4;
 }
 
-.ant-skeleton .ant-skeleton-content .ant-skeleton-title {
-  margin-top: 5px;
+#gen_AIon_root table {
+  width: 100%;
+  border: 1px solid #444444;
+  margin : 12px 0;
 }
 
-.ant-skeleton-with-avatar .ant-skeleton-content .ant-skeleton-title + .ant-skeleton-paragraph {
-  margin-block-start: 10px !important;
-}
-
-Skeleton Loader의 배경을 설정하고 애니메이션 적용
-.ant-skeleton.ant-skeleton-active .ant-skeleton-title,
-.ant-skeleton.ant-skeleton-active .ant-skeleton-paragraph > li,
-.ant-skeleton.ant-skeleton-active .ant-skeleton-avatar,
-.ant-skeleton.ant-skeleton-active .ant-skeleton-button,
-.ant-skeleton.ant-skeleton-active .ant-skeleton-input,
-.ant-skeleton.ant-skeleton-active .ant-skeleton-image {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.2) 25%,
-    rgba(255, 255, 255, 0.3) 37%,
-    rgba(255, 255, 255, 0.2) 63%
-  );
-  background-size: 400% 100%;
-  background-position: -50% 0, 0 0, 120px 0, 120px 40px, 120px 80px, 120px 120px;
-  box-sizing: border-box;
-  animation: animloader 1s linear infinite;
-}
-
-@keyframes animloader {
-  0% {
-    background-position: 0% 0, 0 0, 120px 0, 120px 40px, 120px 80px, 120px 120px;
-  }
-  100% {
-    background-position: 100% 0, 0 0, 120px 0, 120px 40px, 120px 80px, 120px 120px;
-  }
-} */
-
-.ant-tooltip {
-  z-index: 10000 !important;
-}
-
-.ant-tooltip .ant-tooltip-inner {
-  background-color: #f5f5f5 !important;
-  color: #1e1f20 !important;
-  border-radius: 2px !important;
-  padding: 0;
+#gen_AIon_root th, td {
+  border: 1px solid #444444;
+  padding: 4px;
+  min-width: 40px;
 }
 
 @keyframes loading {
@@ -84,4 +48,20 @@ Skeleton Loader의 배경을 설정하고 애니메이션 적용
   height: 100%;
   background: linear-gradient(to right, #f2f2f2, #ddd, #f2f2f2);
   animation: loading 2s infinite linear;
+}
+
+.react-datepicker-popper {
+  z-index: 2 !important;
+}
+
+.react-datepicker__header{
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.react-datepicker__input-container input {
+  outline: none !important;
+  border: none !important;
+  border-radius: 2px !important;
+  width: 100px !important;
 }

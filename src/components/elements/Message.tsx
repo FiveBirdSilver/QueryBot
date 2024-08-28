@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { styled } from 'styled-components'
 import { MdOutlineFileDownload } from 'react-icons/md'
 import { PiCopySimple } from 'react-icons/pi'
@@ -7,22 +7,26 @@ import { TbRefresh } from 'react-icons/tb'
 import { IoMdCheckmark } from 'react-icons/io'
 
 import Skeleton from 'components/elements/Skeleton'
+import Button from 'components/elements/Button'
 import copyToClipboard from 'utils/copyToClipboard'
 import MarkdownRenderer from 'utils/markDownRender'
 import useTypingAnimation from 'hooks/useTypingAnimation'
+import useDelayAction from 'hooks/useDelayAction'
 
 interface MessageProps {
   type: 'basic' | 'queries' | 'answers'
   text: string
+  source?: string // 출처
   children?: React.ReactNode
 }
 
 const Message = (props: MessageProps) => {
-  const { type, text, children } = props
+  const { type, text, source, children } = props
   const typingText = useTypingAnimation(text)
 
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isCopied, setIsCopied] = useState<boolean>(false)
+  const [isCompleted, setIsCompleted] = useState<boolean>(false)
 
   useEffect(() => {
     if (type === 'basic' || type === 'queries') {
@@ -40,34 +44,45 @@ const Message = (props: MessageProps) => {
     setTimeout(() => setIsCopied(false), 2000)
   }
 
+  useDelayAction(text, 3000, () => {
+    if (type == 'answers') setIsCompleted(true)
+  })
+
   return (
     <AssistantWrapper>
       {isLoading ? (
         <Skeleton />
-      ) : (
+      ) : text ? ( // text가 있는지 확인합니다.
         <>
           <AssistantTitle $type={type}>
-            <AssistantIcons>{type === 'queries' ? 'U' : 'G'}</AssistantIcons>
+            <AssistantIcons>
+              <span>{type === 'queries' ? 'U' : 'G'}</span>
+            </AssistantIcons>
             <span>{type !== 'queries' && 'GenAIon Chatbot'}</span>
           </AssistantTitle>
           {type === 'answers' ? (
             <>
-              <MarkdownRenderer>{typingText}</MarkdownRenderer>
-              <UtilityIconsContainer>
-                <UtilityIcons>
-                  <TbRefresh />
-                  <span>Regenerate Answer</span>
-                </UtilityIcons>
-                <UtilityIcons>
-                  <MdOutlineFileDownload />
-                  {isCopied ? (
-                    <IoMdCheckmark />
-                  ) : (
-                    <PiCopySimple onClick={handleOnCopy} />
-                  )}
-                  <FiMoreHorizontal />
-                </UtilityIcons>
-              </UtilityIconsContainer>
+              <AssistantContent $type={type}>
+                <MarkdownRenderer>{typingText}</MarkdownRenderer>
+                {source && <div>{source}</div>}
+              </AssistantContent>
+              {isCompleted && (
+                <UtilityIconsContainer>
+                  <UtilityIcons>
+                    <TbRefresh />
+                    <span>Regenerate Answer</span>
+                  </UtilityIcons>
+                  <UtilityIcons>
+                    <MdOutlineFileDownload />
+                    {isCopied ? (
+                      <IoMdCheckmark />
+                    ) : (
+                      <PiCopySimple onClick={handleOnCopy} />
+                    )}
+                    <FiMoreHorizontal />
+                  </UtilityIcons>
+                </UtilityIconsContainer>
+              )}
             </>
           ) : (
             <AssistantContent $type={type}>
@@ -76,7 +91,7 @@ const Message = (props: MessageProps) => {
             </AssistantContent>
           )}
         </>
-      )}
+      ) : null}
     </AssistantWrapper>
   )
 }
@@ -92,7 +107,7 @@ const AssistantTitle = styled.div<{ $type: 'basic' | 'queries' | 'answers' }>`
   justify-content: ${(props) =>
     props.$type === 'queries' ? 'flex-end' : 'flex-start'};
   align-items: center;
-  margin-bottom: 10px;
+  margin: 10px 0;
   gap: 10px;
 
   span {
@@ -113,6 +128,10 @@ const AssistantIcons = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+
+  span {
+    color: #444444;
+  }
 `
 
 const AssistantContent = styled.div<{ $type: 'basic' | 'queries' | 'answers' }>`

@@ -10,7 +10,8 @@ interface OpenProps {
 const useOpen = create<OpenProps>((set) => ({
   open: false,
   setOpen: () => set((state) => ({ open: !state.open })),
-  condition: 'basic',
+  condition: 'wide',
+  // condition: 'basic',
   setCondition: (condition) => set({ condition }),
 }))
 
