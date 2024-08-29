@@ -3,7 +3,7 @@ export const BasicManual =
 
 export const DatePickerManual = '데이터 추출을 위한 조회 기간을 선택해주세요.'
 
-export const BigQueryManual = '빅쿼리에 업로드하여 데이터를 조회하시겠습니까?'
+export const BigQueryManual = '빅쿼리에 업로드하여 데이터를 조회하시겠습니까? '
 
 export const SelectManual = [
   {
@@ -30,17 +30,18 @@ export const QnaManual = {
     {
       id: 'getting-started',
       value: '애널리틱스 시작하기',
-      text: '',
+      text: `애널리틱스 시작하기 카테고리에서는 GA4를 이용하여 웹사이트나 앱의 데이터를 수집하고 분석하는 데 필요한 기본적인 설정 방법에 대한 질문을 처리합니다. 궁금한 사항을 질문하세요.
+`,
     },
     {
       id: 'data-collection-management',
       value: '데이터 수집 및 관리하기',
-      text: `데이터 수집 및 관리하기 카테고리에서는 주로 “이벤트", “데이터 수집”, 전자상거래 등의 질문을 처리합니다.\n궁금한 사항을 질문하세요.`,
+      text: `데이터 수집 및 관리하기 카테고리에서는 주로 “이벤트", “데이터 수집”, 전자상거래 등의 질문을 처리합니다. 궁금한 사항을 질문하세요.`,
     },
     {
       id: 'reporting-exploration',
       value: '보고 및 탐색',
-      text: '',
+      text: `보고 및 탐색 카테고리에서는 웹사이트 또는 앱에서 수집된 데이터에 대한 다양한 질문을 처리합니다. 궁금한 사항을 질문하세요.`,
     },
     {
       id: 'ads-contribution-analysis',
@@ -50,17 +51,12 @@ export const QnaManual = {
     {
       id: 'audience-remarketing',
       value: '잠재고객 및 리마케팅',
-      text: '',
+      text: `잠재고객 및 리마케팅 카테고리에서는 Google 애널리틱스 4(GA4)를 이용하여 웹사이트나 앱의 사용자를 세분화하고, 이들을 대상으로 맞춤형 마케팅을 진행하기 위한 다양한 기능과 설정 방법에 대한 질문을 처리합니다. 궁금한 사항을 질문하세요.`,
     },
     {
       id: 'account-property-user-management',
       value: '계정, 속성, 사용자 관리하기',
-      text: '',
-    },
-    {
-      id: 'google-analytics-360',
-      value: 'Google 애널리틱스 360',
-      text: '',
+      text: `계정, 속성, 사용자 관리하기 카테고리에서는 Google 애널리틱스 4(GA4) 계정을 처음 설정하거나, 기존 계정을 관리하고, 여러 사용자와 협업하는 방법에 대한 질문을 처리합니다. 궁금한 사항을 질문하세요.`,
     },
   ],
 }

@@ -16,6 +16,7 @@ import useRandomId from 'hooks/useRandomId'
 import useScrollToBottom from 'hooks/useScrollToBottom'
 import useChatJson from 'hooks/useChatJson'
 import { DatePickerManual, BasicManual, BigQueryManual } from 'utils/constants'
+import axios from 'axios'
 
 const Main = () => {
   const scrollEndRef = useRef<HTMLDivElement | null>(null)
@@ -33,18 +34,20 @@ const Main = () => {
       id: string
       queries: string
       answers: string
+      source?: string
       actionId?: string
     }[]
   >([])
 
   const [showDatePicker, setShowDatePicker] = useState<boolean>(true)
-  const [bigQueryId, setBigQueryId] = useState<string[]>()
+  const [bigQueryId, setBigQueryId] = useState<string>()
 
   // 유효 아이디
   const { id } = useRandomId()
 
   // 채팅 타입 선택
   const chatType = useChatType(selectChat)
+  const [triggerChatStream, setTriggerChatStream] = useState(false)
 
   // stream api 통신
   const { messages } = useChatStream({
@@ -105,32 +108,6 @@ const Main = () => {
     if (tmpMsg) return <Message text={tmpMsg} type='basic' />
   }, [chatType, selectCategory])
 
-  //
-  // // 빅쿼리 조회 함수
-  // const showBigQueryData = useMemo(() => {
-  //   if (bigQueryId)
-  //     return (
-  //       <Message
-  //         text={BigQueryManual}
-  //         type='basic'
-  //         children={
-  //           <ButtonContainer>
-  //             <Button
-  //               text={'건너뛰기'}
-  //               status={'cancel'}
-  //               onclick={() => setBigQueryId(undefined)}
-  //             />
-  //             <Button
-  //               text={'확인'}
-  //               status={'primary'}
-  //               onclick={handleBigQueryConfirmation}
-  //             />
-  //           </ButtonContainer>
-  //         }
-  //       />
-  //     )
-  // }, [bigQueryId])
-
   // 질문에 대한 답변이 쌓임
   useEffect(() => {
     if (chatHistory.length === 0) return
@@ -138,35 +115,40 @@ const Main = () => {
     setChatHistory((prev) => {
       const updatedHistory = [...prev]
       const lastIndex = updatedHistory.length - 1
-      const splitMsg = messages.join('').split('**Reference')
 
-      // if (selectChat === 'qna') {
-      //   updatedHistory[lastIndex].answers = splitMsg[0]
-      //   updatedHistory[lastIndex].source =
-      //     splitMsg[1]?.split(': ')[1] !== '[]'
-      //       ? splitMsg[1]?.split(': ')[1]?.replace(/[\[\]']/g, '')
-      //       : ''
-      // } else
-      //
-      updatedHistory[lastIndex].answers = messages.join('')
+      // Convert the entire message string to lowercase to handle both "Reference" and "reference"
+      const lowercaseMessages = messages.join('').toLowerCase()
 
+      const splitMsg = lowercaseMessages.split('reference')
+
+      if (selectChat === 'qna') {
+        updatedHistory[lastIndex].answers = splitMsg[0]
+        updatedHistory[lastIndex].source = splitMsg[1]?.trim().split('[')[1]
+        // !== '[]'
+        //     ? splitMsg[1]?.split(': ')[1]?.replace(/[\[\]']/g, '')
+        //     : ''
+      } else {
+        updatedHistory[lastIndex].answers = messages.join('')
+      }
+      // console.log(splitMsg[1]?.split(':'))
       return updatedHistory
     })
   }, [messages])
+  console.log(chatHistory)
 
   // 응답이 완전히 생성된 후 빅쿼리 업로드 확인용 메시지 생성
-  useDelayAction(messages, 5000, () => {
+  useDelayAction(messages, 3000, () => {
     const isSql = lastAnswer?.answers.match(/```sql/g)
     if (selectChat === 'query/generate' && isSql) {
       const id = isSql?.map((_, index) => `${lastAnswer.id}_${index}`)
-      // setBigQueryId(id)
+      setBigQueryId(id[0])
       setChatHistory((prev) => [
         ...prev,
         {
           id: id[0],
           queries: '',
           answers: BigQueryManual,
-          action: 'query/generate',
+          actionId: 'query/dry',
         },
       ])
     }
@@ -174,9 +156,87 @@ const Main = () => {
 
   // 새로운 채팅
   const setNewChat = () => {
-    setChatHistory([])
     setSelectChat('')
+    setChatHistory([])
     setBigQueryId(undefined)
+  }
+
+  const getQueryDry = async (url: string) => {
+    try {
+      const response = await axios.post(
+        'https://chatbot-api-ver2-xbuguatioa-du.a.run.app/api/' + url,
+        {
+          user_id: id, //> user_id,
+          interface_time: chatHistory[chatHistory.length - 1]?.id,
+        }
+      )
+      const statusCode = response.data.status
+      if (statusCode === 200) {
+        setChatHistory((prev) => {
+          const updatedHistory = [...prev]
+          const lastIndex = updatedHistory.length - 1
+          updatedHistory[lastIndex].answers =
+            `실행 시 이 쿼리가 ${response?.data.result}를 처리합니다. `
+          updatedHistory[lastIndex].actionId = 'query/run'
+          return updatedHistory
+        })
+      }
+      if (statusCode === 400) {
+        setChatHistory((prev) => {
+          const updatedHistory = [...prev]
+          const lastIndex = updatedHistory.length - 1
+          updatedHistory[lastIndex].answers =
+            `쿼리를 생성할 수 없습니다. 결과를 재생성할까요? `
+          updatedHistory[lastIndex].actionId = 'query/generate'
+          return updatedHistory
+        })
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const getQueryRun = async (url: string) => {
+    try {
+      const response = await axios.post(
+        'https://chatbot-api-ver2-xbuguatioa-du.a.run.app/api/' + url,
+        {
+          user_id: id, //> user_id,
+          interface_time: chatHistory[chatHistory.length - 1]?.id,
+        }
+      )
+      const statusCode = response.data.status
+      if (statusCode === 200) {
+        console.log(response.data.data)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const getTest = (id: string) => {
+    setChatHistory((prev) => [
+      ...prev,
+      {
+        id: bigQueryId!,
+        queries: '',
+        answers: '',
+      },
+    ])
+    if (id === 'query/dry') getQueryDry(id)
+    if (id === 'query/run') getQueryRun(id)
+    // if (id === 'query/generate')
+  }
+
+  const getCancel = () => {
+    // setChatHistory((prev) => {
+    //   const updatedHistory = [...prev]
+    //   updatedHistory.pop() // 마지막 요소를 삭제
+    //   return updatedHistory
+    // })
+    // console.log(bigQueryId)
+    // setChatHistory((prev) => prev.filter((item) => item.id !== bigQueryId))
+    // setChatHistory((previousArr) => previousArr.slice(0, -1))
   }
 
   return (
@@ -198,43 +258,22 @@ const Main = () => {
           />
           {showChatOverview}
           {showCategoryDetails}
-          {chatHistory.map(({ id, queries, answers, actionId }) => (
-            <StyledChatHistory key={id}>
-              <Message key={`queries_${id}`} text={queries} type='queries' />
-              <Message
-                key={`answers_${id}`}
-                type='answers'
-                text={answers}
-                actionId={actionId}
-              />
-            </StyledChatHistory>
-          ))}
-          {/*{bigQueryId && (*/}
-          {/*  <Message*/}
-          {/*    text={BigQueryManual}*/}
-          {/*    type='basic'*/}
-          {/*    children={*/}
-          {/*      <ButtonContainer>*/}
-          {/*        <Button*/}
-          {/*          text={'건너뛰기'}*/}
-          {/*          status={'cancel'}*/}
-          {/*          onclick={() => setBigQueryId(undefined)}*/}
-          {/*        />*/}
-          {/*        <Button*/}
-          {/*          text={'확인'}*/}
-          {/*          status={'primary'}*/}
-          {/*          // onclick={() =>*/}
-          {/*          //   useChatJson({*/}
-          {/*          //     url: '/query/dry',*/}
-          {/*          //     sessionId: id,*/}
-          {/*          //     interface_time: bigQueryId[0],*/}
-          {/*          //   })*/}
-          {/*          // }*/}
-          {/*        />*/}
-          {/*      </ButtonContainer>*/}
-          {/*    }*/}
-          {/*  />*/}
-          {/*)}*/}
+          {chatHistory.map(
+            ({ id, queries, answers, source, actionId }, index) => (
+              <StyledChatHistory key={`${id}_${index}`}>
+                <Message key={`${id}_${index}`} text={queries} type='queries' />
+                <Message
+                  key={`answers_${id}`}
+                  type='answers'
+                  text={answers}
+                  source={source}
+                  actionId={actionId}
+                  onCancel={() => getCancel()}
+                  onOk={() => getTest(actionId!)}
+                />
+              </StyledChatHistory>
+            )
+          )}
         </AssistantContainer>
         <Input
           setState={setChatHistory}

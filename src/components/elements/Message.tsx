@@ -16,12 +16,16 @@ import useDelayAction from 'hooks/useDelayAction'
 interface MessageProps {
   type: 'basic' | 'queries' | 'answers'
   text: string
-  actionId?: string // 출처
+  source?: string
+  actionId?: string
+  // setAction?: React.Dispatch<React.SetStateAction<string | null>>
+  onCancel?: () => void
+  onOk?: () => void
   children?: React.ReactNode
 }
 
 const Message = (props: MessageProps) => {
-  const { type, text, actionId, children } = props
+  const { type, text, source, actionId, onCancel, onOk, children } = props
   const typingText = useTypingAnimation(text)
 
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -44,10 +48,11 @@ const Message = (props: MessageProps) => {
     setTimeout(() => setIsCopied(false), 2000)
   }
 
-  useDelayAction(text, 3000, () => {
+  useDelayAction(text, 2000, () => {
     if (type == 'answers') setIsCompleted(true)
   })
 
+  console.log(source)
   return (
     <AssistantWrapper>
       {isLoading ? (
@@ -64,9 +69,45 @@ const Message = (props: MessageProps) => {
             <>
               <AssistantContent $type={type}>
                 <MarkdownRenderer>{typingText}</MarkdownRenderer>
-                {actionId && <div>{actionId}</div>}
+                {actionId && (
+                  <ButtonContainer>
+                    <Button
+                      text={'건너뛰기'}
+                      status={'cancel'}
+                      onclick={onCancel}
+                    />
+                    <Button text={'확인'} status={'primary'} onclick={onOk} />
+                  </ButtonContainer>
+                )}
+                {source !== undefined && source?.trim() !== ']' ? (
+                  <SourceContainer>
+                    <span>출처</span>
+                    <SourceWrapper
+                      onClick={() =>
+                        window.open(
+                          source?.slice(1).replace(/"\]$/, ''),
+                          '_blank'
+                        )
+                      }
+                    >
+                      <SourceLink>
+                        <img
+                          src={
+                            'https://cdn.inflearn.com/public/files/courses/327264/dd050fbf-014c-49ae-beb7-907fc913c487/acc7beb5-013a-47a7-abcc-318e69b8b9aa%20(1).png'
+                          }
+                          alt={'google'}
+                        />
+                        <p>{source?.slice(1).replace(/"\]$/, '')}</p>
+                      </SourceLink>
+                      <SourceDescription>
+                        Find information that's relevant and useful to you
+                        based on your behavior in Google Analytics
+                      </SourceDescription>
+                    </SourceWrapper>
+                  </SourceContainer>
+                ) : null}
               </AssistantContent>
-              {isCompleted && (
+              {!actionId && isCompleted && (
                 <UtilityIconsContainer>
                   <UtilityIcons>
                     <TbRefresh />
@@ -173,4 +214,56 @@ const UtilityIcons = styled.div`
     color: #f5f5f5;
     font-size: 0.575rem;
   }
+`
+
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+`
+
+const SourceContainer = styled.div`
+  margin: 15px 0;
+`
+
+const SourceWrapper = styled.div`
+  max-width: 181px;
+  border: 1px solid gray;
+  border-radius: 4px;
+  margin-top: 5px;
+  padding: 4px 8px;
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  cursor: pointer;
+
+  span {
+    font-size: 0.725rem;
+  }
+`
+const SourceLink = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+
+  img {
+    width: 15px;
+    height: 15px;
+    border: 1px solid gray;
+    border-radius: 50%;
+    padding: 1px;
+  }
+
+  p {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-size: 0.625rem;
+  }
+`
+
+const SourceDescription = styled.p`
+  font-size: 0.5rem;
 `
