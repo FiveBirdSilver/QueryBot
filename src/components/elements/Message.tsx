@@ -16,12 +16,12 @@ import useDelayAction from 'hooks/useDelayAction'
 interface MessageProps {
   type: 'basic' | 'queries' | 'answers'
   text: string
-  source?: string // 출처
+  actionId?: string // 출처
   children?: React.ReactNode
 }
 
 const Message = (props: MessageProps) => {
-  const { type, text, source, children } = props
+  const { type, text, actionId, children } = props
   const typingText = useTypingAnimation(text)
 
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -52,7 +52,7 @@ const Message = (props: MessageProps) => {
     <AssistantWrapper>
       {isLoading ? (
         <Skeleton />
-      ) : text ? ( // text가 있는지 확인합니다.
+      ) : text ? (
         <>
           <AssistantTitle $type={type}>
             <AssistantIcons>
@@ -64,7 +64,7 @@ const Message = (props: MessageProps) => {
             <>
               <AssistantContent $type={type}>
                 <MarkdownRenderer>{typingText}</MarkdownRenderer>
-                {source && <div>{source}</div>}
+                {actionId && <div>{actionId}</div>}
               </AssistantContent>
               {isCompleted && (
                 <UtilityIconsContainer>

@@ -26,9 +26,11 @@ const useChatStream = (props: ChatStreamProps) => {
           method: 'POST',
           body: JSON.stringify({
             user_input:
-              url === '/sql' && date !== '' ? `${date} ${queries}` : queries,
-            session_id: sessionId, //> user_id,
-            // interface_time
+              url === '/query/generate' && date !== ''
+                ? `${date} ${queries}`
+                : queries,
+            user_id: sessionId, //> user_id,
+            interface_time: interface_time,
           }),
         })
         const reader = response.body?.getReader()

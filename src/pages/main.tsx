@@ -14,6 +14,7 @@ import useChatStream from 'hooks/useChatStream'
 import useDelayAction from 'hooks/useDelayAction'
 import useRandomId from 'hooks/useRandomId'
 import useScrollToBottom from 'hooks/useScrollToBottom'
+import useChatJson from 'hooks/useChatJson'
 import { DatePickerManual, BasicManual, BigQueryManual } from 'utils/constants'
 
 const Main = () => {
@@ -32,7 +33,7 @@ const Main = () => {
       id: string
       queries: string
       answers: string
-      source?: string
+      actionId?: string
     }[]
   >([])
 
@@ -45,7 +46,7 @@ const Main = () => {
   // 채팅 타입 선택
   const chatType = useChatType(selectChat)
 
-  // api 통신
+  // stream api 통신
   const { messages } = useChatStream({
     url: `/${selectChat}`,
     sessionId: id,
@@ -80,7 +81,7 @@ const Main = () => {
             />
           }
         />
-        {selectChat === 'sql' && showDatePicker && (
+        {selectChat === 'query/generate' && showDatePicker && (
           <Message
             text={DatePickerManual}
             type='basic'
@@ -104,6 +105,32 @@ const Main = () => {
     if (tmpMsg) return <Message text={tmpMsg} type='basic' />
   }, [chatType, selectCategory])
 
+  //
+  // // 빅쿼리 조회 함수
+  // const showBigQueryData = useMemo(() => {
+  //   if (bigQueryId)
+  //     return (
+  //       <Message
+  //         text={BigQueryManual}
+  //         type='basic'
+  //         children={
+  //           <ButtonContainer>
+  //             <Button
+  //               text={'건너뛰기'}
+  //               status={'cancel'}
+  //               onclick={() => setBigQueryId(undefined)}
+  //             />
+  //             <Button
+  //               text={'확인'}
+  //               status={'primary'}
+  //               onclick={handleBigQueryConfirmation}
+  //             />
+  //           </ButtonContainer>
+  //         }
+  //       />
+  //     )
+  // }, [bigQueryId])
+
   // 질문에 대한 답변이 쌓임
   useEffect(() => {
     if (chatHistory.length === 0) return
@@ -113,13 +140,15 @@ const Main = () => {
       const lastIndex = updatedHistory.length - 1
       const splitMsg = messages.join('').split('**Reference')
 
-      if (selectChat === 'qna') {
-        updatedHistory[lastIndex].answers = splitMsg[0]
-        updatedHistory[lastIndex].source =
-          splitMsg[1]?.split(': ')[1] !== '[]'
-            ? splitMsg[1]?.split(': ')[1]?.replace(/[\[\]']/g, '')
-            : ''
-      } else updatedHistory[lastIndex].answers = messages.join('')
+      // if (selectChat === 'qna') {
+      //   updatedHistory[lastIndex].answers = splitMsg[0]
+      //   updatedHistory[lastIndex].source =
+      //     splitMsg[1]?.split(': ')[1] !== '[]'
+      //       ? splitMsg[1]?.split(': ')[1]?.replace(/[\[\]']/g, '')
+      //       : ''
+      // } else
+      //
+      updatedHistory[lastIndex].answers = messages.join('')
 
       return updatedHistory
     })
@@ -128,18 +157,18 @@ const Main = () => {
   // 응답이 완전히 생성된 후 빅쿼리 업로드 확인용 메시지 생성
   useDelayAction(messages, 5000, () => {
     const isSql = lastAnswer?.answers.match(/```sql/g)
-    if (selectChat === 'sql' && isSql) {
+    if (selectChat === 'query/generate' && isSql) {
       const id = isSql?.map((_, index) => `${lastAnswer.id}_${index}`)
-      setBigQueryId(id)
-      // setChatHistory((prev) => [
-      //   ...prev,
-      //   {
-      //     id: id[0],
-      //     queries: '',
-      //     answers: BigQueryManual,
-      //     action: true,
-      //   },
-      // ])
+      // setBigQueryId(id)
+      setChatHistory((prev) => [
+        ...prev,
+        {
+          id: id[0],
+          queries: '',
+          answers: BigQueryManual,
+          action: 'query/generate',
+        },
+      ])
     }
   })
 
@@ -169,37 +198,43 @@ const Main = () => {
           />
           {showChatOverview}
           {showCategoryDetails}
-          {chatHistory.map(({ id, queries, answers, source }) => (
+          {chatHistory.map(({ id, queries, answers, actionId }) => (
             <StyledChatHistory key={id}>
               <Message key={`queries_${id}`} text={queries} type='queries' />
               <Message
                 key={`answers_${id}`}
                 type='answers'
                 text={answers}
-                source={source}
+                actionId={actionId}
               />
             </StyledChatHistory>
           ))}
-          {bigQueryId && (
-            <Message
-              text={BigQueryManual}
-              type='basic'
-              children={
-                <ButtonContainer>
-                  <Button
-                    text={'건너뛰기'}
-                    status={'cancel'}
-                    onclick={() => setBigQueryId(undefined)}
-                  />
-                  <Button
-                    text={'확인'}
-                    status={'primary'}
-                    onclick={() => console.log(bigQueryId)}
-                  />
-                </ButtonContainer>
-              }
-            />
-          )}
+          {/*{bigQueryId && (*/}
+          {/*  <Message*/}
+          {/*    text={BigQueryManual}*/}
+          {/*    type='basic'*/}
+          {/*    children={*/}
+          {/*      <ButtonContainer>*/}
+          {/*        <Button*/}
+          {/*          text={'건너뛰기'}*/}
+          {/*          status={'cancel'}*/}
+          {/*          onclick={() => setBigQueryId(undefined)}*/}
+          {/*        />*/}
+          {/*        <Button*/}
+          {/*          text={'확인'}*/}
+          {/*          status={'primary'}*/}
+          {/*          // onclick={() =>*/}
+          {/*          //   useChatJson({*/}
+          {/*          //     url: '/query/dry',*/}
+          {/*          //     sessionId: id,*/}
+          {/*          //     interface_time: bigQueryId[0],*/}
+          {/*          //   })*/}
+          {/*          // }*/}
+          {/*        />*/}
+          {/*      </ButtonContainer>*/}
+          {/*    }*/}
+          {/*  />*/}
+          {/*)}*/}
         </AssistantContainer>
         <Input
           setState={setChatHistory}
