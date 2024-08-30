@@ -18,7 +18,6 @@ interface MessageProps {
   text: string
   source?: string
   actionId?: string
-  // setAction?: React.Dispatch<React.SetStateAction<string | null>>
   onCancel?: () => void
   onOk?: () => void
   children?: React.ReactNode
@@ -52,7 +51,6 @@ const Message = (props: MessageProps) => {
     if (type == 'answers') setIsCompleted(true)
   })
 
-  console.log(source)
   return (
     <AssistantWrapper>
       {isLoading ? (

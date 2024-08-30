@@ -5,10 +5,8 @@ import { IoArrowUpCircle } from 'react-icons/io5'
 import TextareaAutosize from 'react-textarea-autosize'
 import dayjs from 'dayjs'
 
-import useDate from 'hooks/useDate'
-
 interface InputProps {
-  disabled: boolean
+  disabled?: boolean
   setState: React.Dispatch<
     React.SetStateAction<{ id: string; queries: string; answers: string }[]>
   >

@@ -47,7 +47,6 @@ const Main = () => {
 
   // 채팅 타입 선택
   const chatType = useChatType(selectChat)
-  const [triggerChatStream, setTriggerChatStream] = useState(false)
 
   // stream api 통신
   const { messages } = useChatStream({
@@ -71,29 +70,18 @@ const Main = () => {
     if (!chatType) return null
 
     return (
-      <>
-        <Message
-          text={chatType.text}
-          type='basic'
-          children={
-            <Label
-              data={chatType.category}
-              active={selectCategory}
-              setActive={setSelectCategory}
-              disabled={chatHistory.length > 0}
-            />
-          }
-        />
-        {selectChat === 'query/generate' && showDatePicker && (
-          <Message
-            text={DatePickerManual}
-            type='basic'
-            children={
-              <CustomDatePicker setShowDatePicker={setShowDatePicker} />
-            }
+      <Message
+        text={chatType.text}
+        type='basic'
+        children={
+          <Label
+            data={chatType.category}
+            active={selectCategory}
+            setActive={setSelectCategory}
+            disabled={chatHistory.length > 0}
           />
-        )}
-      </>
+        }
+      />
     )
   }, [chatType, chatHistory, selectCategory, showDatePicker, setSelectCategory])
 
@@ -105,7 +93,21 @@ const Main = () => {
       (v: any) => v.id === selectCategory
     )?.text
 
-    if (tmpMsg) return <Message text={tmpMsg} type='basic' />
+    if (tmpMsg) {
+      if (selectChat !== 'query/generate')
+        return <Message text={tmpMsg} type='basic' />
+      if (showDatePicker) {
+        return (
+          <Message
+            text={tmpMsg}
+            type='basic'
+            children={
+              <CustomDatePicker setShowDatePicker={setShowDatePicker} />
+            }
+          />
+        )
+      }
+    }
   }, [chatType, selectCategory])
 
   // 질문에 대한 답변이 쌓임
@@ -130,11 +132,9 @@ const Main = () => {
       } else {
         updatedHistory[lastIndex].answers = messages.join('')
       }
-      // console.log(splitMsg[1]?.split(':'))
       return updatedHistory
     })
   }, [messages])
-  console.log(chatHistory)
 
   // 응답이 완전히 생성된 후 빅쿼리 업로드 확인용 메시지 생성
   useDelayAction(messages, 3000, () => {
@@ -167,11 +167,11 @@ const Main = () => {
         'https://chatbot-api-ver2-xbuguatioa-du.a.run.app/api/' + url,
         {
           user_id: id, //> user_id,
-          interface_time: chatHistory[chatHistory.length - 1]?.id,
+          interface_time: bigQueryId,
+          // interface_time: chatHistory[chatHistory.length - 1]?.id,
         }
       )
-      const statusCode = response.data.status
-      if (statusCode === 200) {
+      if (response.data.status === 200) {
         setChatHistory((prev) => {
           const updatedHistory = [...prev]
           const lastIndex = updatedHistory.length - 1
@@ -181,7 +181,7 @@ const Main = () => {
           return updatedHistory
         })
       }
-      if (statusCode === 400) {
+      if (response.data.status === 400) {
         setChatHistory((prev) => {
           const updatedHistory = [...prev]
           const lastIndex = updatedHistory.length - 1
@@ -196,25 +196,107 @@ const Main = () => {
     }
   }
 
+  const [test, setTest] = useState<string>('')
+  function generateMarkdownTable(data: any) {
+    const keys = Object.keys(data)
+
+    const rowCount = Array.isArray(data[keys[0]]) ? data[keys[0]].length : 1
+
+    const tableHeader = `| ${keys.join(' | ')} |`
+    const tableSeparator = `|${keys.map(() => '------------------').join('|')}|`
+
+    let rows = ''
+
+    for (let i = 0; i < rowCount; i++) {
+      const row = keys
+        .map((key) => {
+          const value = data[key]
+          if (Array.isArray(value)) {
+            return value[i] !== undefined ? value[i] : ''
+          } else {
+            return i === 0 ? value.toLocaleString() : ''
+          }
+        })
+        .join(' | ')
+
+      rows += `| ${row} |\n`
+    }
+
+    return `${tableHeader}\n${tableSeparator}\n${rows}`
+  }
+
+  const getQueryLLM = async (interface_time: string) => {
+    try {
+      const response = await fetch(
+        'https://chatbot-api-ver2-xbuguatioa-du.a.run.app/api/query/llm',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            user_id: id, //> user_id,
+            interface_time: interface_time,
+          }),
+        }
+      )
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+      const readStream = async () => {
+        let result
+        if (reader) {
+          while (!(result = await reader.read()).done) {
+            const chunk = decoder.decode(result.value, { stream: true })
+            // setMessages((pre) => [...pre, chunk])
+            setChatHistory((prev) => {
+              const updatedHistory = [...prev]
+              const lastIndex = updatedHistory.length - 1
+              updatedHistory[lastIndex].answers = chunk
+              return updatedHistory
+            })
+          }
+        }
+      }
+      readStream()
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const getQueryRun = async (url: string) => {
     try {
       const response = await axios.post(
         'https://chatbot-api-ver2-xbuguatioa-du.a.run.app/api/' + url,
         {
           user_id: id, //> user_id,
-          interface_time: chatHistory[chatHistory.length - 1]?.id,
+          // interface_time: chatHistory[chatHistory.length - 1]?.id,
+          interface_time: bigQueryId,
         }
       )
-      const statusCode = response.data.status
-      if (statusCode === 200) {
-        console.log(response.data.data)
+      if (response.data.status === 200) {
+        // const data = JSON.parse(response.data.data)
+        // console.log(response.data?.interface_time)
+        setChatHistory((prev) => {
+          const updatedHistory = [...prev]
+          const lastIndex = updatedHistory.length - 1
+          updatedHistory[lastIndex].answers = generateMarkdownTable(
+            response.data.data
+          )
+          return updatedHistory
+        })
+        getQueryLLM(response.data?.interface_time)
+        // setSelectChat('/query/llm')
       }
     } catch (error) {
       console.log(error)
     }
   }
 
-  const getTest = (id: string) => {
+  const getTest = async (id: string) => {
+    setChatHistory((prev) => {
+      const updatedHistory = [...prev]
+      const lastIndex = updatedHistory.length - 1
+      updatedHistory[lastIndex].actionId = ''
+      return updatedHistory
+    })
+
     setChatHistory((prev) => [
       ...prev,
       {
@@ -223,20 +305,19 @@ const Main = () => {
         answers: '',
       },
     ])
+
     if (id === 'query/dry') getQueryDry(id)
     if (id === 'query/run') getQueryRun(id)
-    // if (id === 'query/generate')
   }
 
   const getCancel = () => {
-    // setChatHistory((prev) => {
-    //   const updatedHistory = [...prev]
-    //   updatedHistory.pop() // 마지막 요소를 삭제
-    //   return updatedHistory
-    // })
-    // console.log(bigQueryId)
-    // setChatHistory((prev) => prev.filter((item) => item.id !== bigQueryId))
-    // setChatHistory((previousArr) => previousArr.slice(0, -1))
+    setChatHistory((prev) => {
+      const updatedHistory = [...prev]
+      const lastIndex = updatedHistory.length - 1
+      updatedHistory[lastIndex].answers = ''
+      updatedHistory[lastIndex].actionId = ''
+      return updatedHistory
+    })
   }
 
   return (
@@ -277,7 +358,7 @@ const Main = () => {
         </AssistantContainer>
         <Input
           setState={setChatHistory}
-          disabled={selectChat === '' || bigQueryId !== undefined}
+          // disabled={selectChat === '' || bigQueryId !== undefined}
         />
         <div ref={scrollEndRef}></div>
       </MainWrapper>
