@@ -1,8 +1,6 @@
 export const BasicManual =
   '안녕하세요! 저는 GA4 챗봇입니다.\n제가 도와드릴 수 있는 작업을 안내할게요.\n\n어시스턴스를 선택하거나 질문을 통해 질문할 수 있습니다.'
 
-export const DatePickerManual = '데이터 추출을 위한 조회 기간을 선택해주세요.'
-
 export const BigQueryManual = '빅쿼리에 업로드하여 데이터를 조회하시겠습니까? '
 
 export const SelectManual = [
@@ -107,31 +105,24 @@ export const QueryManual = {
 
 export const InsightManual = {
   text: 'Insight Assistant에서는 Query를 통해 복잡한 분석을 진행하고 결과를 시각화하여 인사이트를 도출합니다.',
-  category: [
-    {
-      id: 'sentiment-analysis',
-      value: '감성 분석',
-      text: '',
-    },
-    {
-      id: 'time-series-analysis',
-      value: '시계열 분석',
-      text: '',
-    },
-    {
-      id: 'hypothesis-testing',
-      value: '가설 검증',
-      text: '',
-    },
-    {
-      id: 'impact-analysis',
-      value: '임팩트 분석',
-      text: '',
-    },
-    {
-      id: 'model-recommendation',
-      value: '분석 모델 추천',
-      text: '',
-    },
-  ],
+  category: [],
+}
+
+// export const InsightChatData = [
+//   'test1 입니다.',
+//   'test2 입니다.',
+//   'test3 입니다.',
+// ]
+
+export const InsightChatData = [
+  "방문 사용자의 프로모션 페이지부터 구매완료 페이지까지의 퍼널을 확인하는 방법은 다음과 같습니다.\n\n#### 유입경로 탐색분석 활용\n\n- 시작 단계에 `page_view` 이벤트를 추가하고, '매개변수 추가'에서 `page_location`을 추가하여 프로모션 페이지 URL을 필터로 설정합니다.\n- 다음 단계에 `page_view` 이벤트를 추가하고, '매개변수 추가'에서 `page_location`을 추가하여 상품상세 페이지 URL을 필터로 설정합니다.\n- 다음 단계에 `page_view` 이벤트를 추가하고, '매개변수 추가'에서 `page_location`을 추가하여 주문서 페이지 URL을 필터로 설정합니다.\n- 다음 단계에 `page_view` 이벤트를 추가하고, '매개변수 추가'에서 `page_location`을 추가하여 주문완료 페이지 URL을 필터로 설정합니다.\n- 퍼널 시각화를 통해 각 단계별 사용자 수와 이탈률을 확인할 수 있습니다. ",
+  "```sql\nWITH\n  -- 프로모션 페이지 조회 이벤트\n  promo_page_views AS (\n    SELECT\n      event_date,\n      user_pseudo_id,\n      event_name,\n      MAX(value) AS page_location\n    FROM\n      `your_project.your_dataset.events_*`\n    WHERE\n      event_name = 'page_view'\n      AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) BETWEEN '20230101' AND '20231231' -- 분석 기간 설정\n      AND SAFE_CAST(JSON_EXTRACT(event_params, '$.ga_page_path') AS STRING) LIKE '%your_promo_page_url%'\n    GROUP BY\n      event_date,\n      user_pseudo_id,\n      event_name\n  ),\n  -- 상품 상세 페이지 조회 이벤트\n  product_detail_page_views AS (\n    -- ... 상품 상세 페이지 URL에 맞게 WHERE 절 수정 ...\n  ),\n  -- 주문서 페이지 조회 이벤트\n  order_page_views AS (\n    -- ... 주문서 페이지 URL에 맞게 WHERE 절 수정 ...\n  ),\n  -- 주문 완료 페이지 조회 이벤트\n  order_completed_page_views AS (\n    -- ... 주문 완료 페이지 URL에 맞게 WHERE 절 수정 ...\n  )\nSELECT\n  COUNT(DISTINCT promo_page_views.user_pseudo_id) AS total_users,\n  COUNT(DISTINCT product_detail_page_views.user_pseudo_id) AS reached_product_detail,\n  COUNT(DISTINCT order_page_views.user_pseudo_id) AS reached_order_page,\n  COUNT(DISTINCT order_completed_page_views.user_pseudo_id) AS reached_order_completed,\n  ROUND(SAFE_DIVIDE(COUNT(DISTINCT product_detail_page_views.user_pseudo_id), COUNT(DISTINCT promo_page_views.user_pseudo_id)) * 100, 2) AS product_detail_conversion_rate,\n  -- ... 다른 단계의 전환율 계산 ...\nFROM\n  promo_page_views\nLEFT JOIN product_detail_page_views USING(user_pseudo_id, event_date)\nLEFT JOIN order_page_views USING(user_pseudo_id, event_date)\nLEFT JOIN order_completed_page_views USING(user_pseudo_id, event_date);\n``` ",
+  '![단계별사용자수](https://chatbot-api-ver2-296869084219.asia-northeast3.run.app/images/chart.png) \n프로모션, 상품상세, 주문서, 주문완료 페이지에서의 사용자 수 변화 퍼널 분석입니다. \n ### 상품상세 페이지 이탈률 (22.0%): \n- 이탈률이 상대적으로 낮습니다. 이 단계에서의 개선은 필요하지 않을 수 있지만, 프로모션에서 상품상세 페이지로 이동할 수 있도록 매력적인 내용을 추가하면 도움이 될 것입니다.\n### 주문서 페이지 이탈률 (60.2%):\n- 이탈률이 매우 높습니다. 이는 상품상세에서 주문서 페이지로의 전환이 제대로 이루어지지 않고 있음을 나타냅니다.\n**해결 방안:**\n- 주문서 페이지의 사용성 검토: 폼의 복잡성, 필수 입력 항목, 오류 메시지 등을 점검하고, 사용자 경험을 개선합니다.\n- 결제 프로세스를 간소화하여 사용자가 쉽게 주문을 완료할 수 있도록 합니다.\n- 결제 방법이나 배송 옵션을 다양화하여 사용자의 선택지를 넓힙니다.\n### 주문완료 페이지 이탈률 (24.2%):\n이탈률이 중간 수준입니다. 주문서 페이지에서 주문완료 페이지로의 전환에서 일부 사용자가 이탈하고 있음을 의미합니다.\n**해결 방안:**\n- 주문 완료 후의 피드백 및 확인 메시지를 명확하게 전달하여 사용자에게 주문이 완료되었음을 확실히 인지시킵니다.\n- 주문 완료 후 추가적인 유도 행동(예: 다음 구매를 위한 추천, 소셜 미디어 공유 옵션 등)을 제공하여 사용자의 만족도를 높입니다.\n- 가장 높은 이탈률을 보이는 주문서 페이지의 UI/UX를 사용자 친화적으로 변경하여 사용자 경험을 개선하고 전자상거래를 개선하시기 바랍니다. ',
+]
+
+export const InsightTableData = {
+  프로모션: 42652,
+  상품상세: 33265,
+  주문서: 13265,
+  주문완료: 10056,
 }

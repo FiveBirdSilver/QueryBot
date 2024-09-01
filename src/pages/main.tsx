@@ -1,22 +1,30 @@
 import dayjs from 'dayjs'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { styled } from 'styled-components'
+import axios from 'axios'
 
 import Input from 'components/elements/Input'
 import Aside from 'components/layouts/Aside'
 import Message from 'components/elements/Message'
 import Card from 'components/elements/Card'
 import Label from 'components/elements/Label'
-import Button from 'components/elements/Button'
 import CustomDatePicker from 'components/elements/DatePicker'
+
 import useChatType from 'hooks/useChatType'
 import useChatStream from 'hooks/useChatStream'
 import useDelayAction from 'hooks/useDelayAction'
 import useRandomId from 'hooks/useRandomId'
 import useScrollToBottom from 'hooks/useScrollToBottom'
-import useChatJson from 'hooks/useChatJson'
-import { DatePickerManual, BasicManual, BigQueryManual } from 'utils/constants'
-import axios from 'axios'
+
+import generateMarkdownTable from 'utils/generateMarkdownTable'
+import {
+  BasicManual,
+  BigQueryManual,
+  InsightChatData,
+  InsightTableData,
+} from 'utils/constants'
+import filterIndexId from 'utils/filterIndexId'
+import getQueryLLM from 'utils/getQueryLLM'
 
 const Main = () => {
   const scrollEndRef = useRef<HTMLDivElement | null>(null)
@@ -48,19 +56,41 @@ const Main = () => {
   // 채팅 타입 선택
   const chatType = useChatType(selectChat)
 
-  // stream api 통신
-  const { messages } = useChatStream({
-    url: `/${selectChat}`,
-    sessionId: id,
-    queries: chatHistory[chatHistory.length - 1]?.queries,
-    interface_time: chatHistory[chatHistory.length - 1]?.id,
-  })
-
   // 채팅의 마지막 데이터
   const lastAnswer = useMemo(
     () => chatHistory[chatHistory.length - 1],
     [chatHistory]
   )
+
+  // stream api 통신
+  const { messages } = useChatStream({
+    url: `/${selectChat}`,
+    sessionId: id,
+    queries: lastAnswer?.queries,
+    interface_time: lastAnswer?.id,
+    index: chatHistory.length,
+  })
+
+  // 질문에 대한 답변이 쌓임
+  useEffect(() => {
+    if (chatHistory.length === 0) return
+
+    setChatHistory((prev) => {
+      const updatedHistory = [...prev]
+      const lastIndex = updatedHistory.length - 1
+
+      const lowercaseMessages = messages.join('').toLowerCase()
+      const splitMsg = lowercaseMessages.split('reference')
+
+      if (selectChat === 'qna') {
+        updatedHistory[lastIndex].answers = splitMsg[0]
+        updatedHistory[lastIndex].source = splitMsg[1]?.trim().split('[')[1]
+      } else {
+        updatedHistory[lastIndex].answers = messages.join('')
+      }
+      return updatedHistory
+    })
+  }, [messages])
 
   // 자동 스크롤 감지
   useScrollToBottom([messages, chatHistory, bigQueryId], scrollEndRef)
@@ -75,7 +105,7 @@ const Main = () => {
         type='basic'
         children={
           <Label
-            data={chatType.category}
+            data={chatType?.category}
             active={selectCategory}
             setActive={setSelectCategory}
             disabled={chatHistory.length > 0}
@@ -110,186 +140,159 @@ const Main = () => {
     }
   }, [chatType, selectCategory])
 
-  // 질문에 대한 답변이 쌓임
+  // 추천 카테고리 초기화
   useEffect(() => {
-    if (chatHistory.length === 0) return
-
-    setChatHistory((prev) => {
-      const updatedHistory = [...prev]
-      const lastIndex = updatedHistory.length - 1
-
-      // Convert the entire message string to lowercase to handle both "Reference" and "reference"
-      const lowercaseMessages = messages.join('').toLowerCase()
-
-      const splitMsg = lowercaseMessages.split('reference')
-
-      if (selectChat === 'qna') {
-        updatedHistory[lastIndex].answers = splitMsg[0]
-        updatedHistory[lastIndex].source = splitMsg[1]?.trim().split('[')[1]
-        // !== '[]'
-        //     ? splitMsg[1]?.split(': ')[1]?.replace(/[\[\]']/g, '')
-        //     : ''
-      } else {
-        updatedHistory[lastIndex].answers = messages.join('')
-      }
-      return updatedHistory
-    })
-  }, [messages])
+    setSelectCategory('')
+  }, [selectChat])
 
   // 응답이 완전히 생성된 후 빅쿼리 업로드 확인용 메시지 생성
-  useDelayAction(messages, 3000, () => {
-    const isSql = lastAnswer?.answers.match(/```sql/g)
-    if (selectChat === 'query/generate' && isSql) {
-      const id = isSql?.map((_, index) => `${lastAnswer.id}_${index}`)
-      setBigQueryId(id[0])
-      setChatHistory((prev) => [
-        ...prev,
-        {
-          id: id[0],
-          queries: '',
-          answers: BigQueryManual,
-          actionId: 'query/dry',
-        },
-      ])
+  useDelayAction(
+    messages,
+    selectChat === 'query/generate' ? 3000 : 15000,
+    () => {
+      const isSql = lastAnswer?.answers.match(/```sql/g)
+      if (
+        (selectChat === 'query/generate' || selectChat === 'insight') &&
+        isSql
+      ) {
+        setBigQueryId(lastAnswer.id)
+        setChatHistory((prev) => [
+          ...prev,
+          {
+            id: lastAnswer.id,
+            queries: '',
+            answers: BigQueryManual,
+            actionId: 'query/dry',
+          },
+        ])
+      }
     }
-  })
+  )
 
   // 새로운 채팅
   const setNewChat = () => {
     setSelectChat('')
+    setSelectCategory('')
     setChatHistory([])
     setBigQueryId(undefined)
   }
 
   const getQueryDry = async (url: string) => {
-    try {
-      const response = await axios.post(
-        'https://chatbot-api-ver2-xbuguatioa-du.a.run.app/api/' + url,
-        {
-          user_id: id, //> user_id,
-          interface_time: bigQueryId,
-          // interface_time: chatHistory[chatHistory.length - 1]?.id,
+    const fetchData = async () => {
+      try {
+        const response = await axios.post(
+          'https://chatbot-api-ver2-xbuguatioa-du.a.run.app/api/' + url,
+          {
+            user_id: id, //> user_id,
+            interface_time: filterIndexId(bigQueryId!),
+          }
+        )
+        if (response.data.status === 200) {
+          setChatHistory((prev) => {
+            const updatedHistory = [...prev]
+            const lastIndex = updatedHistory.length - 1
+            updatedHistory[lastIndex].answers =
+              `실행 시 이 쿼리가 ${response?.data.result}를 처리합니다. `
+            updatedHistory[lastIndex].actionId = 'query/run'
+            return updatedHistory
+          })
         }
-      )
-      if (response.data.status === 200) {
+        if (response.data.status === 400) {
+          setChatHistory((prev) => {
+            const updatedHistory = [...prev]
+            const lastIndex = updatedHistory.length - 1
+            updatedHistory[lastIndex].answers =
+              '쿼리를 생성할 수 없습니다. 결과를 재생성할까요? '
+            updatedHistory[lastIndex].actionId = 'query/generate'
+            return updatedHistory
+          })
+        }
+      } catch (error) {
         setChatHistory((prev) => {
           const updatedHistory = [...prev]
           const lastIndex = updatedHistory.length - 1
           updatedHistory[lastIndex].answers =
-            `실행 시 이 쿼리가 ${response?.data.result}를 처리합니다. `
-          updatedHistory[lastIndex].actionId = 'query/run'
+            '죄송합니다. 통신 중 문제가 발생했습니다. 다시 질문해 주세요. '
           return updatedHistory
         })
       }
-      if (response.data.status === 400) {
+    }
+
+    if (selectChat !== 'insight') fetchData()
+    else {
+      setChatHistory((prev) => {
+        const updatedHistory = [...prev]
+        const lastIndex = updatedHistory.length - 1
+        updatedHistory[lastIndex].answers =
+          `실행 시 이 쿼리가 8.39GB를 처리합니다. `
+        updatedHistory[lastIndex].actionId = 'query/run'
+        return updatedHistory
+      })
+    }
+  }
+
+  const getQueryRun = (url: string) => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.post(
+          'https://chatbot-api-ver2-xbuguatioa-du.a.run.app/api/' + url,
+          {
+            user_id: id,
+            interface_time: filterIndexId(bigQueryId!),
+          }
+        )
+
+        if (response.data.status === 200) {
+          setChatHistory((prev) => {
+            const updatedHistory = [...prev]
+            const lastIndex = updatedHistory.length - 1
+
+            updatedHistory[lastIndex].answers = generateMarkdownTable(
+              response.data.data
+            )
+            updatedHistory[lastIndex].answers += '\n'
+            return updatedHistory
+          })
+
+          await getQueryLLM(
+            { id: id, interface_time: response.data?.interface_time },
+            (chunk: any) => {
+              setChatHistory((prev) => {
+                const updatedHistory = [...prev]
+                const lastIndex = updatedHistory.length - 1
+                updatedHistory[lastIndex].answers += chunk
+                return updatedHistory
+              })
+            }
+          )
+        }
+      } catch (error) {
+        console.log(error)
         setChatHistory((prev) => {
           const updatedHistory = [...prev]
           const lastIndex = updatedHistory.length - 1
           updatedHistory[lastIndex].answers =
-            `쿼리를 생성할 수 없습니다. 결과를 재생성할까요? `
+            '쿼리를 생성할 수 없습니다. 결과를 재생성할까요? '
           updatedHistory[lastIndex].actionId = 'query/generate'
           return updatedHistory
         })
       }
-    } catch (error) {
-      console.log(error)
+    }
+
+    if (selectChat !== 'insight') fetchData()
+    else {
+      setChatHistory((prev) => {
+        const updatedHistory = [...prev]
+        const lastIndex = updatedHistory.length - 1
+
+        updatedHistory[lastIndex].answers =
+          generateMarkdownTable(InsightTableData)
+        return updatedHistory
+      })
     }
   }
 
-  const [test, setTest] = useState<string>('')
-  function generateMarkdownTable(data: any) {
-    const keys = Object.keys(data)
-
-    const rowCount = Array.isArray(data[keys[0]]) ? data[keys[0]].length : 1
-
-    const tableHeader = `| ${keys.join(' | ')} |`
-    const tableSeparator = `|${keys.map(() => '------------------').join('|')}|`
-
-    let rows = ''
-
-    for (let i = 0; i < rowCount; i++) {
-      const row = keys
-        .map((key) => {
-          const value = data[key]
-          if (Array.isArray(value)) {
-            return value[i] !== undefined ? value[i] : ''
-          } else {
-            return i === 0 ? value.toLocaleString() : ''
-          }
-        })
-        .join(' | ')
-
-      rows += `| ${row} |\n`
-    }
-
-    return `${tableHeader}\n${tableSeparator}\n${rows}`
-  }
-
-  const getQueryLLM = async (interface_time: string) => {
-    try {
-      const response = await fetch(
-        'https://chatbot-api-ver2-xbuguatioa-du.a.run.app/api/query/llm',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            user_id: id, //> user_id,
-            interface_time: interface_time,
-          }),
-        }
-      )
-      const reader = response.body?.getReader()
-      const decoder = new TextDecoder()
-      const readStream = async () => {
-        let result
-        if (reader) {
-          while (!(result = await reader.read()).done) {
-            const chunk = decoder.decode(result.value, { stream: true })
-            // setMessages((pre) => [...pre, chunk])
-            setChatHistory((prev) => {
-              const updatedHistory = [...prev]
-              const lastIndex = updatedHistory.length - 1
-              updatedHistory[lastIndex].answers = chunk
-              return updatedHistory
-            })
-          }
-        }
-      }
-      readStream()
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const getQueryRun = async (url: string) => {
-    try {
-      const response = await axios.post(
-        'https://chatbot-api-ver2-xbuguatioa-du.a.run.app/api/' + url,
-        {
-          user_id: id, //> user_id,
-          // interface_time: chatHistory[chatHistory.length - 1]?.id,
-          interface_time: bigQueryId,
-        }
-      )
-      if (response.data.status === 200) {
-        // const data = JSON.parse(response.data.data)
-        // console.log(response.data?.interface_time)
-        setChatHistory((prev) => {
-          const updatedHistory = [...prev]
-          const lastIndex = updatedHistory.length - 1
-          updatedHistory[lastIndex].answers = generateMarkdownTable(
-            response.data.data
-          )
-          return updatedHistory
-        })
-        getQueryLLM(response.data?.interface_time)
-        // setSelectChat('/query/llm')
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const getTest = async (id: string) => {
+  const getRunQuery = async (id: string) => {
     setChatHistory((prev) => {
       const updatedHistory = [...prev]
       const lastIndex = updatedHistory.length - 1
@@ -308,6 +311,15 @@ const Main = () => {
 
     if (id === 'query/dry') getQueryDry(id)
     if (id === 'query/run') getQueryRun(id)
+    if (id === 'query/generate') {
+      setChatHistory((prev) => {
+        const updatedHistory = [...prev]
+        const lastIndex = updatedHistory.length - 1
+        updatedHistory[lastIndex].id = filterIndexId(bigQueryId!)!
+        updatedHistory[lastIndex].queries = 'regenerate'
+        return updatedHistory
+      })
+    }
   }
 
   const getCancel = () => {
@@ -315,7 +327,6 @@ const Main = () => {
       const updatedHistory = [...prev]
       const lastIndex = updatedHistory.length - 1
       updatedHistory[lastIndex].answers = ''
-      updatedHistory[lastIndex].actionId = ''
       return updatedHistory
     })
   }
@@ -350,7 +361,7 @@ const Main = () => {
                   source={source}
                   actionId={actionId}
                   onCancel={() => getCancel()}
-                  onOk={() => getTest(actionId!)}
+                  onOk={() => getRunQuery(actionId!)}
                 />
               </StyledChatHistory>
             )

@@ -53,7 +53,7 @@ const AsideContainer = styled.div<{ $condition: 'basic' | 'wide' }>`
   padding: ${(props) =>
     props.$condition === 'wide' ? '15px 20px' : '15px 10px'};
   border-bottom-left-radius: 1rem;
-
+  min-width: ${(props) => (props.$condition === 'wide' ? '100px' : 'auto')};
   svg {
     cursor: pointer;
     font-size: 14px;

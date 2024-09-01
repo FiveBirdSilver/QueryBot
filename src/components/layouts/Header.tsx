@@ -37,7 +37,7 @@ const HeaderContainer = styled.div`
 `
 
 const HeaderTitle = styled.img`
-  width: 6rem;
+  width: 6rem !important;
   height: 1rem;
 `
 

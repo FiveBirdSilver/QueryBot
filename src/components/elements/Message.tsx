@@ -48,14 +48,14 @@ const Message = (props: MessageProps) => {
   }
 
   useDelayAction(text, 2000, () => {
-    if (type == 'answers') setIsCompleted(true)
+    if (type === 'answers') setIsCompleted(true)
   })
 
   return (
     <AssistantWrapper>
       {isLoading ? (
         <Skeleton />
-      ) : text ? (
+      ) : text && text !== 'regenerate' ? (
         <>
           <AssistantTitle $type={type}>
             <AssistantIcons>
@@ -98,14 +98,14 @@ const Message = (props: MessageProps) => {
                         <p>{source?.slice(1).replace(/"\]$/, '')}</p>
                       </SourceLink>
                       <SourceDescription>
-                        Find information that's relevant and useful to you
-                        based on your behavior in Google Analytics
+                        Find information that's relevant and useful to you based
+                        on your behavior in Google Analytics
                       </SourceDescription>
                     </SourceWrapper>
                   </SourceContainer>
                 ) : null}
               </AssistantContent>
-              {!actionId && isCompleted && (
+              {actionId === undefined && actionId !== '' && isCompleted && (
                 <UtilityIconsContainer>
                   <UtilityIcons>
                     <TbRefresh />
@@ -262,6 +262,6 @@ const SourceLink = styled.div`
   }
 `
 
-const SourceDescription = styled.p`
+const SourceDescription = styled.span`
   font-size: 0.5rem;
 `

@@ -1,34 +1,40 @@
 import { useState, useEffect } from 'react'
 import useDate from 'hooks/useDate'
+import { InsightChatData } from 'utils/constants'
 
 interface ChatStreamProps {
   url: string
   sessionId: string
   queries: string
   interface_time: string
+  index: number
 }
 
 const useChatStream = (props: ChatStreamProps) => {
-  const { url, sessionId, interface_time, queries } = props
+  const { url, sessionId, interface_time, queries, index } = props
+  console.log(index)
   const { date } = useDate()
   const baseUrl = 'https://chatbot-api-ver2-xbuguatioa-du.a.run.app/api'
 
   const [messages, setMessages] = useState<string[]>([])
-  const [loading, setLoading] = useState<boolean>(false)
+
+  const getFilterQuery = () => {
+    if (queries === 'regenerate') return ''
+    else {
+      if (url === '/query/generate' && date) return `${date} ${queries}`
+      else return queries
+    }
+  }
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true)
         setMessages([])
 
         const response = await fetch(baseUrl + url, {
           method: 'POST',
           body: JSON.stringify({
-            user_input:
-              url === '/query/generate' && date !== ''
-                ? `${date} ${queries}`
-                : queries,
+            user_input: getFilterQuery(),
             user_id: sessionId, //> user_id,
             interface_time: interface_time,
           }),
@@ -45,18 +51,28 @@ const useChatStream = (props: ChatStreamProps) => {
           }
         }
         readStream()
-        setLoading(false)
       } catch (err) {
         console.error(err)
         // setError(err);
       }
     }
+    const dummyData = async () => {
+      setTimeout(
+        () =>
+          setMessages(
+            index === 6 ? [InsightChatData[2]] : [InsightChatData[index - 1]]
+          ),
+        2000
+      )
+    }
+
     if (queries) {
-      fetchData()
+      if (url === '/insight') dummyData()
+      else fetchData()
     }
   }, [url, sessionId, queries])
 
-  return { messages, loading }
+  return { messages }
 }
 
 export default useChatStream
