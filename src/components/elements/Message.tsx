@@ -14,17 +14,29 @@ import useTypingAnimation from 'hooks/useTypingAnimation'
 import useDelayAction from 'hooks/useDelayAction'
 
 interface MessageProps {
+  id?: string
   type: 'basic' | 'queries' | 'answers'
   text: string
   source?: string
   actionId?: string
   onCancel?: () => void
   onOk?: () => void
+  setRegenerate?: React.Dispatch<React.SetStateAction<string | undefined>>
   children?: React.ReactNode
 }
 
 const Message = (props: MessageProps) => {
-  const { type, text, source, actionId, onCancel, onOk, children } = props
+  const {
+    id,
+    type,
+    text,
+    source,
+    actionId,
+    setRegenerate,
+    onCancel,
+    onOk,
+    children,
+  } = props
   const typingText = useTypingAnimation(text)
 
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -50,6 +62,10 @@ const Message = (props: MessageProps) => {
   useDelayAction(text, 2000, () => {
     if (type === 'answers') setIsCompleted(true)
   })
+
+  const handleOnRegenerate = (id: string) => {
+    if (setRegenerate && id) setRegenerate(id)
+  }
 
   return (
     <AssistantWrapper>
@@ -107,9 +123,9 @@ const Message = (props: MessageProps) => {
               </AssistantContent>
               {actionId === undefined && actionId !== '' && isCompleted && (
                 <UtilityIconsContainer>
-                  <UtilityIcons>
+                  <UtilityIcons onClick={() => handleOnRegenerate(id!)}>
                     <TbRefresh />
-                    <span>Regenerate Answer</span>
+                    <p>Regenerate Answer</p>
                   </UtilityIcons>
                   <UtilityIcons>
                     <MdOutlineFileDownload />
@@ -203,12 +219,13 @@ const UtilityIcons = styled.div`
   display: flex;
   align-items: center;
   gap: 7px;
+  cursor: pointer;
 
   svg {
     color: #f5f5f5;
     cursor: pointer;
   }
-  span {
+  p {
     color: #f5f5f5;
     font-size: 0.575rem;
   }
@@ -247,7 +264,7 @@ const SourceLink = styled.div`
   width: 100%;
 
   img {
-    width: 15px;
+    width: 15px !important;
     height: 15px;
     border: 1px solid gray;
     border-radius: 50%;

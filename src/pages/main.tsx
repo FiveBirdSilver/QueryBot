@@ -49,6 +49,7 @@ const Main = () => {
 
   const [showDatePicker, setShowDatePicker] = useState<boolean>(true)
   const [bigQueryId, setBigQueryId] = useState<string>()
+  const [regenerate, setRegenerate] = useState<string>() // 재생성을 위한 가지고 있는 id
 
   // 유효 아이디
   const { id } = useRandomId()
@@ -70,6 +71,24 @@ const Main = () => {
     interface_time: lastAnswer?.id,
     index: chatHistory.length,
   })
+
+  useEffect(() => {
+    const nowTime = dayjs().format('YYYYMMDDhhmmss')
+    const regenerateQuery = chatHistory.find(
+      (v) => v.id === regenerate
+    )?.queries
+
+    if (regenerateQuery) {
+      setChatHistory((prev) => [
+        ...prev,
+        {
+          id: nowTime,
+          queries: regenerateQuery + ' ',
+          answers: '',
+        },
+      ])
+    }
+  }, [regenerate])
 
   // 질문에 대한 답변이 쌓임
   useEffect(() => {
@@ -148,7 +167,7 @@ const Main = () => {
   // 응답이 완전히 생성된 후 빅쿼리 업로드 확인용 메시지 생성
   useDelayAction(
     messages,
-    selectChat === 'query/generate' ? 3000 : 15000,
+    selectChat === 'query/generate' ? 3000 : 18000,
     () => {
       const isSql = lastAnswer?.answers.match(/```sql/g)
       if (
@@ -355,22 +374,21 @@ const Main = () => {
               <StyledChatHistory key={`${id}_${index}`}>
                 <Message key={`${id}_${index}`} text={queries} type='queries' />
                 <Message
-                  key={`answers_${id}`}
+                  id={id}
+                  key={`answers_${id}_${index}`}
                   type='answers'
                   text={answers}
                   source={source}
                   actionId={actionId}
                   onCancel={() => getCancel()}
                   onOk={() => getRunQuery(actionId!)}
+                  setRegenerate={setRegenerate}
                 />
               </StyledChatHistory>
             )
           )}
         </AssistantContainer>
-        <Input
-          setState={setChatHistory}
-          // disabled={selectChat === '' || bigQueryId !== undefined}
-        />
+        <Input setState={setChatHistory} disabled={selectChat === ''} />
         <div ref={scrollEndRef}></div>
       </MainWrapper>
     </MainContainer>

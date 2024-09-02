@@ -12,7 +12,7 @@ interface ChatStreamProps {
 
 const useChatStream = (props: ChatStreamProps) => {
   const { url, sessionId, interface_time, queries, index } = props
-  console.log(index)
+
   const { date } = useDate()
   const baseUrl = 'https://chatbot-api-ver2-xbuguatioa-du.a.run.app/api'
 
@@ -30,7 +30,6 @@ const useChatStream = (props: ChatStreamProps) => {
     const fetchData = async () => {
       try {
         setMessages([])
-
         const response = await fetch(baseUrl + url, {
           method: 'POST',
           body: JSON.stringify({
