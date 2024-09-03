@@ -68,8 +68,8 @@ const StyledInputContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0 20px;
   gap: 10px;
+  padding: 0 20px 10px 20px;
 `
 
 const StyledInputWrapper = styled.div`
@@ -85,10 +85,10 @@ const StyledInputWrapper = styled.div`
 const StyledInput = styled(TextareaAutosize)`
   width: -webkit-fill-available;
   outline: none;
-  border: none;
-  color: #cdced0;
+  border: none !important;
+  color: #cdced0 !important;
   resize: none;
-  font-size: 0.765rem;
+  font-size: 0.765rem !important;
   max-height: 150px;
   background-color: transparent;
   overflow-y: auto;

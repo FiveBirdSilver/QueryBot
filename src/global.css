@@ -17,23 +17,6 @@
   color: #4b89d4;
 }
 
-#gen_AIon_root table {
-  width: 100%;
-  border: 1px solid #444444;
-  margin : 12px 0;
-}
-
-#gen_AIon_root th, td {
-  border: 1px solid #444444;
-  padding: 4px;
-  min-width: 40px;
-}
-
-#gen_AIon_root img {
-  width: -webkit-fill-available;
-  max-width: 450px;
-}
-
 @keyframes loading {
   0% {
     transform: translateX(0);
@@ -70,4 +53,5 @@
   border-radius: 2px !important;
   width: 100px !important;
   color: #444444 !important;
+  background-color: #ffffff !important;
 }

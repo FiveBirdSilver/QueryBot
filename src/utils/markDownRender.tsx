@@ -45,35 +45,63 @@ const MarkdownRenderer = styled(ReactMarkdown).attrs({
         </code>
       ),
     h1: (props: any) => (
-      <h1 style={{ fontSize: '1rem', margin: '0.5em 0' }}>{props.children}</h1>
+      <h1
+        style={{
+          fontSize: '1rem',
+          margin: '0.5em 0',
+          color: '#FFF !important',
+        }}
+      >
+        {props.children}
+      </h1>
     ),
     h2: (props: any) => (
-      <h2 style={{ fontSize: '0.925rem', margin: '0.5em 0' }}>
+      <h2
+        style={{
+          fontSize: '1rem',
+          margin: '0.5em 0',
+          color: '#FFF !important',
+        }}
+      >
         {props.children}
       </h2>
     ),
     h3: (props: any) => (
-      <h3 {...props} style={{ fontSize: '0.925rem', margin: '0.5em 0' }}>
+      <h3
+        {...props}
+        style={{
+          fontSize: '1rem',
+          margin: '0.5em 0',
+          color: '#FFF !important',
+        }}
+      >
         {props.children}
       </h3>
     ),
     h4: (props: any) => (
-      <h4 {...props} style={{ fontSize: '0.875rem' }}>
+      <h4
+        {...props}
+        style={{
+          fontSize: '0.925rem',
+          margin: '0.5em 0',
+          color: '#FFF !important',
+        }}
+      >
         {props.children}
       </h4>
     ),
     h5: (props: any) => (
-      <h5 {...props} style={{ fontSize: '0.725rem' }}>
+      <h5 {...props} style={{ fontSize: '0.785rem', margin: '0.5em 0' }}>
         {props.children}
       </h5>
     ),
     h6: (props: any) => (
-      <h6 {...props} style={{ fontSize: '0.725rem' }}>
+      <h6 {...props} style={{ fontSize: '0.785rem', margin: '0.5em 0' }}>
         {props.children}
       </h6>
     ),
     p: (props: any) => (
-      <p {...props} style={{ fontSize: '0.725rem', margin: '0.5em 0' }} />
+      <p {...props} style={{ fontSize: '0.785rem', margin: '0.5em 0' }} />
     ),
     ul: (props: any) => (
       <ul {...props} style={{ paddingLeft: '1.5em', margin: '0.5em 0' }} />

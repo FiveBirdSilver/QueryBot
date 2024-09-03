@@ -1,12 +1,12 @@
-import { styled } from "styled-components";
+import { styled } from 'styled-components'
 
-import Header from "./components/layouts/Header";
-import Footer from "./components/layouts/Footer";
-import Main from "./pages/main";
-import useOpen from "./hooks/useOpen";
+import Header from './components/layouts/Header'
+import Footer from './components/layouts/Footer'
+import Main from './pages/main'
+import useOpen from './hooks/useOpen'
 
 const Popup = () => {
-  const { condition } = useOpen();
+  const { condition } = useOpen()
 
   return (
     <PopupContainer $condition={condition}>
@@ -14,20 +14,21 @@ const Popup = () => {
       <Main />
       <Footer />
     </PopupContainer>
-  );
-};
+  )
+}
 
-export default Popup;
+export default Popup
 
-const PopupContainer = styled.div<{ $condition: "basic" | "wide" }>`
+const PopupContainer = styled.div<{ $condition: 'basic' | 'wide' }>`
   position: fixed;
   background-color: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 1rem;
   bottom: 5rem;
   right: 1.25rem;
-  left: ${(props) => (props.$condition === "wide" ? "1.25rem" : "auto")};
-  width: ${(props) => (props.$condition === "wide" ? "-webkit-fill-available" : "27rem")};
-  height: 85%;
+  //left: ${(props) => (props.$condition === 'wide' ? '1.25rem' : 'auto')};
+  left: auto;
+  width: ${(props) => (props.$condition === 'wide' ? '90%' : '27rem')};
+  height: 90%;
   z-index: 10000;
-`;
+`

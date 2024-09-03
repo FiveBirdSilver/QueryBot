@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react'
 import useDate from 'hooks/useDate'
-import { InsightChatData } from 'utils/constants'
+import {
+  InsightChatData_1,
+  InsightChatData_2,
+  InsightChatData_6,
+} from 'utils/constants'
 
 interface ChatStreamProps {
   url: string
@@ -55,14 +59,32 @@ const useChatStream = (props: ChatStreamProps) => {
         // setError(err);
       }
     }
+
+    const setInsightData = () => {
+      if (index === 1) return InsightChatData_1
+      if (index === 2) return InsightChatData_2
+      if (index === 6) return InsightChatData_6
+      return []
+    }
+
     const dummyData = async () => {
-      setTimeout(
-        () =>
-          setMessages(
-            index === 6 ? [InsightChatData[2]] : [InsightChatData[index - 1]]
-          ),
-        2000
-      )
+      // 첫 번째 메시지를 2초 후에 설정
+      setTimeout(() => {
+        setMessages([setInsightData()[0]])
+      }, 2000)
+
+      // 두 번째 메시지부터 0.5초 간격으로 추가
+      for (let i = 1; i < setInsightData().length; i++) {
+        setTimeout(
+          () => {
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              setInsightData()[i], // 수정된 부분: 배열의 i번째 요소 접근
+            ])
+          },
+          2000 + i * 500
+        )
+      }
     }
 
     if (queries) {

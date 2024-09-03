@@ -1,18 +1,21 @@
-import styled from 'styled-components'
-import { SelectManual } from 'utils/constants'
 import React from 'react'
+import styled from 'styled-components'
+
+import { SelectManual } from 'utils/constants'
+import useOpen from 'hooks/useOpen'
 
 interface CardProps {
   active: string
   setActive: React.Dispatch<React.SetStateAction<string>>
-  disabled: boolean
+  disabled?: boolean
 }
 
 const Card = (props: CardProps) => {
   const { active, setActive, disabled } = props
+  const { condition } = useOpen()
 
   return (
-    <CardContainer>
+    <CardContainer $condition={condition}>
       {SelectManual.map((v) => (
         <CardWrapper
           key={v.id}
@@ -36,9 +39,10 @@ const Card = (props: CardProps) => {
 
 export default Card
 
-const CardContainer = styled.div`
-  display: flex;
-  flex-direction: column;
+const CardContainer = styled.div<{ $condition: 'basic' | 'wide' }>`
+  display: grid;
+  grid-template-columns: ${(props) =>
+    props.$condition === 'wide' ? '1fr 1fr 1fr' : 'auto'};
   padding-top: 12px;
   gap: 10px;
 `

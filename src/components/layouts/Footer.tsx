@@ -1,14 +1,16 @@
-import { styled } from "styled-components";
+import { styled } from 'styled-components'
 
 const Footer = () => {
   return (
     <FooterContainer>
-      <FooterText>This product may show inaccurate or offensive information.</FooterText>
+      <FooterText>
+        This product may show inaccurate or offensive information.
+      </FooterText>
     </FooterContainer>
-  );
-};
+  )
+}
 
-export default Footer;
+export default Footer
 
 const FooterContainer = styled.div`
   position: absolute;
@@ -21,10 +23,10 @@ const FooterContainer = styled.div`
   border-bottom-left-radius: 1rem;
   border-bottom-right-radius: 1rem;
   margin: auto;
-  padding: 6px 0;
+  padding-bottom: 6px;
   color: #444654;
-`;
+`
 
 const FooterText = styled.p`
   padding-left: 1rem;
-`;
+`

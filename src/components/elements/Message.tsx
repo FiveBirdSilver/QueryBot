@@ -12,6 +12,7 @@ import copyToClipboard from 'utils/copyToClipboard'
 import MarkdownRenderer from 'utils/markDownRender'
 import useTypingAnimation from 'hooks/useTypingAnimation'
 import useDelayAction from 'hooks/useDelayAction'
+import PdfDownload from 'utils/downloadPDF'
 
 interface MessageProps {
   id?: string
@@ -26,22 +27,14 @@ interface MessageProps {
 }
 
 const Message = (props: MessageProps) => {
-  const {
-    id,
-    type,
-    text,
-    source,
-    actionId,
-    setRegenerate,
-    onCancel,
-    onOk,
-    children,
-  } = props
+  const { id, type, text, source, actionId, onCancel, onOk, children } = props
   const typingText = useTypingAnimation(text)
 
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isCopied, setIsCopied] = useState<boolean>(false)
+  const [isDownloaded, setIsDownloaded] = useState<boolean>(false)
   const [isCompleted, setIsCompleted] = useState<boolean>(false)
+  const [isSource, setIsSource] = useState<boolean>(false)
 
   useEffect(() => {
     if (type === 'basic' || type === 'queries') {
@@ -59,12 +52,23 @@ const Message = (props: MessageProps) => {
     setTimeout(() => setIsCopied(false), 2000)
   }
 
+  // pdf 다운로드
+  const handleOnDownloadPDF = () => {
+    PdfDownload()
+    setIsDownloaded(true)
+    setTimeout(() => setIsDownloaded(false), 2000)
+  }
+
   useDelayAction(text, 2000, () => {
     if (type === 'answers') setIsCompleted(true)
   })
 
+  useDelayAction(text, 2000, () => {
+    if (source !== undefined && source?.trim() !== ']') setIsSource(true)
+  })
+
   const handleOnRegenerate = (id: string) => {
-    if (setRegenerate && id) setRegenerate(id)
+    setIsSource(true)
   }
 
   return (
@@ -93,7 +97,7 @@ const Message = (props: MessageProps) => {
                     <Button text={'확인'} status={'primary'} onclick={onOk} />
                   </ButtonContainer>
                 )}
-                {source !== undefined && source?.trim() !== ']' ? (
+                {isSource ? (
                   <SourceContainer>
                     <span>출처</span>
                     <SourceWrapper
@@ -128,7 +132,13 @@ const Message = (props: MessageProps) => {
                     <p>Regenerate Answer</p>
                   </UtilityIcons>
                   <UtilityIcons>
-                    <MdOutlineFileDownload />
+                    {isDownloaded ? (
+                      <IoMdCheckmark />
+                    ) : (
+                      <MdOutlineFileDownload
+                        onClick={() => handleOnDownloadPDF()}
+                      />
+                    )}
                     {isCopied ? (
                       <IoMdCheckmark />
                     ) : (
@@ -206,6 +216,28 @@ const AssistantContent = styled.div<{ $type: 'basic' | 'queries' | 'answers' }>`
   border-bottom-right-radius: 1rem;
   display: flex;
   flex-direction: column;
+
+  strong {
+    color: #ffffff !important;
+  }
+
+  table {
+    width: 100%;
+    border: 1px solid #444444;
+    margin: 12px 0;
+  }
+
+  th,
+  td {
+    border: 1px solid #444444;
+    padding: 4px;
+    min-width: 40px;
+  }
+
+  img {
+    width: -webkit-fill-available;
+    max-width: 450px;
+  }
 `
 
 const UtilityIconsContainer = styled.div`
@@ -213,6 +245,12 @@ const UtilityIconsContainer = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 10px 15px 0 40px;
+
+  svg {
+    color: #f5f5f5;
+    cursor: pointer;
+    font-size: 16px;
+  }
 `
 
 const UtilityIcons = styled.div`
@@ -221,13 +259,9 @@ const UtilityIcons = styled.div`
   gap: 7px;
   cursor: pointer;
 
-  svg {
-    color: #f5f5f5;
-    cursor: pointer;
-  }
   p {
     color: #f5f5f5;
-    font-size: 0.575rem;
+    font-size: 0.625rem;
   }
 `
 

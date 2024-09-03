@@ -38,7 +38,6 @@ const getQueryLLM = async (
         while (!(result = await reader.read()).done) {
           const chunk = decoder.decode(result.value, { stream: true })
           message += chunk
-          // Call the callback to update state with each chunk
           onChunkReceived(chunk)
         }
       }

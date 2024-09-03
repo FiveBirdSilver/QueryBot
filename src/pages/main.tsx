@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { styled } from 'styled-components'
 import axios from 'axios'
 
@@ -17,12 +17,7 @@ import useRandomId from 'hooks/useRandomId'
 import useScrollToBottom from 'hooks/useScrollToBottom'
 
 import generateMarkdownTable from 'utils/generateMarkdownTable'
-import {
-  BasicManual,
-  BigQueryManual,
-  InsightChatData,
-  InsightTableData,
-} from 'utils/constants'
+import { BasicManual, BigQueryManual, InsightTableData } from 'utils/constants'
 import filterIndexId from 'utils/filterIndexId'
 import getQueryLLM from 'utils/getQueryLLM'
 
@@ -47,7 +42,6 @@ const Main = () => {
     }[]
   >([])
 
-  const [showDatePicker, setShowDatePicker] = useState<boolean>(true)
   const [bigQueryId, setBigQueryId] = useState<string>()
   const [regenerate, setRegenerate] = useState<string>() // 재생성을 위한 가지고 있는 id
 
@@ -99,11 +93,11 @@ const Main = () => {
       const lastIndex = updatedHistory.length - 1
 
       const lowercaseMessages = messages.join('').toLowerCase()
-      const splitMsg = lowercaseMessages.split('reference')
+      const referenceMsg = lowercaseMessages.split('reference')
 
       if (selectChat === 'qna') {
-        updatedHistory[lastIndex].answers = splitMsg[0]
-        updatedHistory[lastIndex].source = splitMsg[1]?.trim().split('[')[1]
+        updatedHistory[lastIndex].answers = referenceMsg[0]
+        updatedHistory[lastIndex].source = referenceMsg[1]?.trim().split('[')[1]
       } else {
         updatedHistory[lastIndex].answers = messages.join('')
       }
@@ -132,7 +126,7 @@ const Main = () => {
         }
       />
     )
-  }, [chatType, chatHistory, selectCategory, showDatePicker, setSelectCategory])
+  }, [chatType, chatHistory, selectCategory, setSelectCategory])
 
   // 카테고리 선택하면 설명 보여주는 함수
   const showCategoryDetails = useMemo(() => {
@@ -145,17 +139,13 @@ const Main = () => {
     if (tmpMsg) {
       if (selectChat !== 'query/generate')
         return <Message text={tmpMsg} type='basic' />
-      if (showDatePicker) {
-        return (
-          <Message
-            text={tmpMsg}
-            type='basic'
-            children={
-              <CustomDatePicker setShowDatePicker={setShowDatePicker} />
-            }
-          />
-        )
-      }
+      return (
+        <Message
+          text={tmpMsg}
+          type='basic'
+          children={<CustomDatePicker selectCategory={selectCategory} />}
+        />
+      )
     }
   }, [chatType, selectCategory])
 
@@ -165,34 +155,30 @@ const Main = () => {
   }, [selectChat])
 
   // 응답이 완전히 생성된 후 빅쿼리 업로드 확인용 메시지 생성
-  useDelayAction(
-    messages,
-    selectChat === 'query/generate' ? 3000 : 18000,
-    () => {
-      const isSql = lastAnswer?.answers.match(/```sql/g)
-      if (
-        (selectChat === 'query/generate' || selectChat === 'insight') &&
-        isSql
-      ) {
-        setBigQueryId(lastAnswer.id)
-        setChatHistory((prev) => [
-          ...prev,
-          {
-            id: lastAnswer.id,
-            queries: '',
-            answers: BigQueryManual,
-            actionId: 'query/dry',
-          },
-        ])
-      }
+  useDelayAction(messages, selectChat === 'insight' ? 8000 : 3000, () => {
+    const isSql = lastAnswer?.answers.match(/```sql/g)
+    if (
+      (selectChat === 'query/generate' || selectChat === 'insight') &&
+      isSql
+    ) {
+      setBigQueryId(lastAnswer.id)
+      setChatHistory((prev) => [
+        ...prev,
+        {
+          id: lastAnswer.id,
+          queries: '',
+          answers: BigQueryManual,
+          actionId: 'query/dry',
+        },
+      ])
     }
-  )
+  })
 
   // 새로운 채팅
   const setNewChat = () => {
+    setChatHistory([])
     setSelectChat('')
     setSelectCategory('')
-    setChatHistory([])
     setBigQueryId(undefined)
   }
 
@@ -216,22 +202,13 @@ const Main = () => {
             return updatedHistory
           })
         }
-        if (response.data.status === 400) {
-          setChatHistory((prev) => {
-            const updatedHistory = [...prev]
-            const lastIndex = updatedHistory.length - 1
-            updatedHistory[lastIndex].answers =
-              '쿼리를 생성할 수 없습니다. 결과를 재생성할까요? '
-            updatedHistory[lastIndex].actionId = 'query/generate'
-            return updatedHistory
-          })
-        }
       } catch (error) {
         setChatHistory((prev) => {
           const updatedHistory = [...prev]
           const lastIndex = updatedHistory.length - 1
           updatedHistory[lastIndex].answers =
-            '죄송합니다. 통신 중 문제가 발생했습니다. 다시 질문해 주세요. '
+            '쿼리를 생성할 수 없습니다. 결과를 재생성할까요? '
+          updatedHistory[lastIndex].actionId = 'query/generate'
           return updatedHistory
         })
       }
@@ -239,14 +216,16 @@ const Main = () => {
 
     if (selectChat !== 'insight') fetchData()
     else {
-      setChatHistory((prev) => {
-        const updatedHistory = [...prev]
-        const lastIndex = updatedHistory.length - 1
-        updatedHistory[lastIndex].answers =
-          `실행 시 이 쿼리가 8.39GB를 처리합니다. `
-        updatedHistory[lastIndex].actionId = 'query/run'
-        return updatedHistory
-      })
+      setTimeout(() => {
+        setChatHistory((prev) => {
+          const updatedHistory = [...prev]
+          const lastIndex = updatedHistory.length - 1
+          updatedHistory[lastIndex].answers =
+            `실행 시 이 쿼리가 1.39GB를 처리합니다. `
+          updatedHistory[lastIndex].actionId = 'query/run'
+          return updatedHistory
+        })
+      }, 2000)
     }
   }
 
@@ -300,14 +279,16 @@ const Main = () => {
 
     if (selectChat !== 'insight') fetchData()
     else {
-      setChatHistory((prev) => {
-        const updatedHistory = [...prev]
-        const lastIndex = updatedHistory.length - 1
+      setTimeout(() => {
+        setChatHistory((prev) => {
+          const updatedHistory = [...prev]
+          const lastIndex = updatedHistory.length - 1
 
-        updatedHistory[lastIndex].answers =
-          generateMarkdownTable(InsightTableData)
-        return updatedHistory
-      })
+          updatedHistory[lastIndex].answers =
+            generateMarkdownTable(InsightTableData)
+          return updatedHistory
+        })
+      }, 2000)
     }
   }
 
@@ -406,7 +387,7 @@ const MainContainer = styled.div`
   border-radius: 1rem;
   padding-top: 40px;
   display: grid;
-  grid-template-columns: 1.5fr 8.5fr;
+  grid-template-columns: 1fr 8.5fr;
 `
 
 const MainWrapper = styled.div`
