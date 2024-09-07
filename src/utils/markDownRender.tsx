@@ -49,7 +49,7 @@ const MarkdownRenderer = styled(ReactMarkdown).attrs({
         style={{
           fontSize: '1rem',
           margin: '0.5em 0',
-          color: '#FFF !important',
+          color: '#fff',
         }}
       >
         {props.children}
@@ -60,7 +60,7 @@ const MarkdownRenderer = styled(ReactMarkdown).attrs({
         style={{
           fontSize: '1rem',
           margin: '0.5em 0',
-          color: '#FFF !important',
+          color: '#fff',
         }}
       >
         {props.children}
@@ -72,7 +72,7 @@ const MarkdownRenderer = styled(ReactMarkdown).attrs({
         style={{
           fontSize: '1rem',
           margin: '0.5em 0',
-          color: '#FFF !important',
+          color: '#fff',
         }}
       >
         {props.children}
@@ -84,7 +84,7 @@ const MarkdownRenderer = styled(ReactMarkdown).attrs({
         style={{
           fontSize: '0.925rem',
           margin: '0.5em 0',
-          color: '#FFF !important',
+          color: '#fff',
         }}
       >
         {props.children}

@@ -29,6 +29,6 @@ const PopupContainer = styled.div<{ $condition: 'basic' | 'wide' }>`
   //left: ${(props) => (props.$condition === 'wide' ? '1.25rem' : 'auto')};
   left: auto;
   width: ${(props) => (props.$condition === 'wide' ? '90%' : '27rem')};
-  height: 90%;
+  height: 85%;
   z-index: 10000;
 `

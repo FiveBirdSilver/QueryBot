@@ -13,8 +13,7 @@ export const SelectManual = [
   {
     id: 'query/generate',
     title: 'Query Assistant',
-    content:
-      'SQL문을 생성하고 BigQuery에서 원하는 데이터를 조회하고 차트를 생성합니다.',
+    content: 'SQL문을 생성하고 BigQuery에서 원하는 데이터를 조회해보세요.',
   },
   {
     id: 'insight',
@@ -207,14 +206,18 @@ export const InsightChatData_2 = [
 export const InsightChatData_6 = [
   '### 5월 퍼널 보고서\n',
 
-  '##### 개요\n',
-  '- 프로덕트별 퍼널 단계 차트\n',
-  '- 상품상세 페이지 이탈률 (22.0%)\n',
-  '- 주문서 페이지 이탈률 (60.2%)\n',
-  '- 주문완료 페이지 이탈률 (24.2%)\n',
-  '- 인사이트\n',
+  '#### 개요\n',
+  '프로덕트별 퍼널 단계 차트\n',
 
-  '![단계별사용자수](https://chatbot-api-ver2-296869084219.asia-northeast3.run.app/images/product.png)\n',
+  '상품상세 페이지 이탈률 분석\n',
+
+  '주문서 페이지 이탈률 분석\n',
+
+  '주문완료 페이지 이탈률 분석\n\n\n',
+
+  '#### 인사이트 도출\n\n\n',
+
+  '![단계별사용자수](https://chatbot-api-ver2-296869084219.asia-northeast3.run.app/images/product.png)\n\n',
   '프로모션, 상품상세, 주문서, 주문완료 페이지에서의 사용자 수 변화 퍼널분석 입니다.\n',
 
   '##### 상품상세 페이지 이탈률 (22.0%):\n',

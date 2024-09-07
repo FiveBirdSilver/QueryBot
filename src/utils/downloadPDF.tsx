@@ -1,16 +1,17 @@
-const PdfDownload = () => {
-  // Public 폴더에 있는 PDF 파일 경로
-  const fileUrl = '/ga4_chatbot_report.pdf'
+const PdfDownload = async () => {
+  const response = await fetch('/report.pdf')
+  const blob = await response.blob()
+  const url = window.URL.createObjectURL(blob)
 
-  // 다운로드를 위한 링크 생성
   const link = document.createElement('a')
-  link.href = fileUrl
-  link.download = 'ga4_chatbot_report.pdf' // download 속성 추가
+  link.href = url
+  link.setAttribute('download', 'report.pdf')
   document.body.appendChild(link)
   link.click()
 
-  // 링크 요소 제거
-  document.body.removeChild(link)
+  // 링크 요소 제거 및 메모리 해제
+  link.parentNode?.removeChild(link)
+  window.URL.revokeObjectURL(url)
 }
 
 export default PdfDownload

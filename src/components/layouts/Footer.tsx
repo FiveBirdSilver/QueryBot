@@ -3,9 +3,7 @@ import { styled } from 'styled-components'
 const Footer = () => {
   return (
     <FooterContainer>
-      <FooterText>
-        This product may show inaccurate or offensive information.
-      </FooterText>
+      <FooterText>Copyrightⓒ2024 Goldenplanet All rights reserved.</FooterText>
     </FooterContainer>
   )
 }

@@ -5,14 +5,12 @@ import { PiCopySimple } from 'react-icons/pi'
 import { FiMoreHorizontal } from 'react-icons/fi'
 import { TbRefresh } from 'react-icons/tb'
 import { IoMdCheckmark } from 'react-icons/io'
-
 import Skeleton from 'components/elements/Skeleton'
 import Button from 'components/elements/Button'
 import copyToClipboard from 'utils/copyToClipboard'
 import MarkdownRenderer from 'utils/markDownRender'
 import useTypingAnimation from 'hooks/useTypingAnimation'
 import useDelayAction from 'hooks/useDelayAction'
-import PdfDownload from 'utils/downloadPDF'
 
 interface MessageProps {
   id?: string
@@ -32,7 +30,6 @@ const Message = (props: MessageProps) => {
 
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isCopied, setIsCopied] = useState<boolean>(false)
-  const [isDownloaded, setIsDownloaded] = useState<boolean>(false)
   const [isCompleted, setIsCompleted] = useState<boolean>(false)
   const [isSource, setIsSource] = useState<boolean>(false)
 
@@ -50,13 +47,6 @@ const Message = (props: MessageProps) => {
     copyToClipboard(text)
     setIsCopied(true)
     setTimeout(() => setIsCopied(false), 2000)
-  }
-
-  // pdf 다운로드
-  const handleOnDownloadPDF = () => {
-    PdfDownload()
-    setIsDownloaded(true)
-    setTimeout(() => setIsDownloaded(false), 2000)
   }
 
   useDelayAction(text, 2000, () => {
@@ -132,13 +122,14 @@ const Message = (props: MessageProps) => {
                     <p>Regenerate Answer</p>
                   </UtilityIcons>
                   <UtilityIcons>
-                    {isDownloaded ? (
-                      <IoMdCheckmark />
-                    ) : (
-                      <MdOutlineFileDownload
-                        onClick={() => handleOnDownloadPDF()}
-                      />
-                    )}
+                    <a
+                      href='https://chatbot-api-ver2-296869084219.asia-northeast3.run.app/images/ga4_report.pdf'
+                      download='ga4_report.pdf'
+                      target='_blank'
+                      rel='noopener noreferrer'
+                    >
+                      <MdOutlineFileDownload />
+                    </a>
                     {isCopied ? (
                       <IoMdCheckmark />
                     ) : (
@@ -250,6 +241,10 @@ const UtilityIconsContainer = styled.div`
     color: #f5f5f5;
     cursor: pointer;
     font-size: 16px;
+  }
+
+  a {
+    padding-top: 5px;
   }
 `
 
