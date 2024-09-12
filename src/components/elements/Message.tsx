@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { styled } from 'styled-components'
 import { MdOutlineFileDownload } from 'react-icons/md'
 import { PiCopySimple } from 'react-icons/pi'
 import { FiMoreHorizontal } from 'react-icons/fi'
 import { TbRefresh } from 'react-icons/tb'
 import { IoMdCheckmark } from 'react-icons/io'
-import Skeleton from 'components/elements/Skeleton'
-import Button from 'components/elements/Button'
-import copyToClipboard from 'utils/copyToClipboard'
-import MarkdownRenderer from 'utils/markDownRender'
-import useTypingAnimation from 'hooks/useTypingAnimation'
-import useDelayAction from 'hooks/useDelayAction'
+import Skeleton from '@/components/elements/Skeleton'
+import Button from '@/components/elements/Button'
+import copyToClipboard from '@/utils/copyToClipboard'
+import MarkdownRenderer from '@/utils/markDownRender'
+import { googleDescription, googleHelperIcon } from '@/utils/constants'
+import useTypingAnimation from '@/hooks/useTypingAnimation'
+import useDelayAction from '@/hooks/useDelayAction'
 
 interface MessageProps {
   id?: string
   type: 'basic' | 'queries' | 'answers'
   text: string
-  source?: string
   actionId?: string
   onCancel?: () => void
   onOk?: () => void
@@ -25,13 +25,31 @@ interface MessageProps {
 }
 
 const Message = (props: MessageProps) => {
-  const { id, type, text, source, actionId, onCancel, onOk, children } = props
-  const typingText = useTypingAnimation(text)
+  const { id, type, text, actionId, onCancel, onOk, children } = props
 
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isCopied, setIsCopied] = useState<boolean>(false)
   const [isCompleted, setIsCompleted] = useState<boolean>(false)
-  const [isSource, setIsSource] = useState<boolean>(false)
+  const [source, setSource] = useState<string>('')
+
+  const typingText = useTypingAnimation(text)
+
+  const isReference = useMemo(() => {
+    const result = typingText.split('reference_source_Url_')
+    if (result.length === 0) return typingText
+    else return result[0]
+  }, [typingText])
+
+  useEffect(() => {
+    const tmpArray = typingText.split('\n')
+
+    const result = tmpArray.find((msg) => msg.includes('reference_source_Url_'))
+
+    const urlRegex = /["']([^"']+)["']/
+    const tmp = result?.match(urlRegex)
+
+    if (tmp) setSource(tmp[1])
+  }, [typingText])
 
   useEffect(() => {
     if (type === 'basic' || type === 'queries') {
@@ -49,17 +67,9 @@ const Message = (props: MessageProps) => {
     setTimeout(() => setIsCopied(false), 2000)
   }
 
-  useDelayAction(text, 2000, () => {
+  useDelayAction(typingText, 2000, () => {
     if (type === 'answers') setIsCompleted(true)
   })
-
-  useDelayAction(text, 2000, () => {
-    if (source !== undefined && source?.trim() !== ']') setIsSource(true)
-  })
-
-  const handleOnRegenerate = (id: string) => {
-    setIsSource(true)
-  }
 
   return (
     <AssistantWrapper>
@@ -71,23 +81,13 @@ const Message = (props: MessageProps) => {
             <AssistantIcons>
               <span>{type === 'queries' ? 'U' : 'G'}</span>
             </AssistantIcons>
-            <span>{type !== 'queries' && 'GenAIon Chatbot'}</span>
+            <span>{type !== 'queries' && 'Chatbot'}</span>
           </AssistantTitle>
           {type === 'answers' ? (
             <>
               <AssistantContent $type={type}>
-                <MarkdownRenderer>{typingText}</MarkdownRenderer>
-                {actionId && (
-                  <ButtonContainer>
-                    <Button
-                      text={'건너뛰기'}
-                      status={'cancel'}
-                      onclick={onCancel}
-                    />
-                    <Button text={'확인'} status={'primary'} onclick={onOk} />
-                  </ButtonContainer>
-                )}
-                {isSource ? (
+                <MarkdownRenderer>{isReference}</MarkdownRenderer>
+                {source && (
                   <SourceContainer>
                     <span>출처</span>
                     <SourceWrapper
@@ -99,25 +99,27 @@ const Message = (props: MessageProps) => {
                       }
                     >
                       <SourceLink>
-                        <img
-                          src={
-                            'https://cdn.inflearn.com/public/files/courses/327264/dd050fbf-014c-49ae-beb7-907fc913c487/acc7beb5-013a-47a7-abcc-318e69b8b9aa%20(1).png'
-                          }
-                          alt={'google'}
-                        />
+                        <img src={googleHelperIcon} alt={'google'} />
                         <p>{source?.slice(1).replace(/"\]$/, '')}</p>
                       </SourceLink>
-                      <SourceDescription>
-                        Find information that's relevant and useful to you based
-                        on your behavior in Google Analytics
-                      </SourceDescription>
+                      <SourceDescription>{googleDescription}</SourceDescription>
                     </SourceWrapper>
                   </SourceContainer>
-                ) : null}
+                )}
+                {actionId && (
+                  <ButtonContainer>
+                    <Button
+                      text={'건너뛰기'}
+                      status={'cancel'}
+                      onclick={onCancel}
+                    />
+                    <Button text={'확인'} status={'primary'} onclick={onOk} />
+                  </ButtonContainer>
+                )}
               </AssistantContent>
               {actionId === undefined && actionId !== '' && isCompleted && (
                 <UtilityIconsContainer>
-                  <UtilityIcons onClick={() => handleOnRegenerate(id!)}>
+                  <UtilityIcons>
                     <TbRefresh />
                     <p>Regenerate Answer</p>
                   </UtilityIcons>
@@ -180,7 +182,7 @@ const AssistantIcons = styled.div`
   border-radius: 50%;
   text-align: center;
   font-weight: bold;
-  margin-top: 5px;
+  //margin-top: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -235,7 +237,7 @@ const UtilityIconsContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 15px 0 40px;
+  padding: 0 15px 0 40px;
 
   svg {
     color: #f5f5f5;
