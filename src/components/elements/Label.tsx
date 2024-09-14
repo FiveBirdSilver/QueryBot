@@ -15,25 +15,25 @@ interface CardProps {
 const Label = (props: CardProps) => {
   const { data, active, setActive, disabled } = props
 
-  const handleClick = (value: string) => {
+  const handleOnClick = (value: string) => {
     setActive(value)
   }
 
   return (
     <>
       {data.length > 0 && (
-        <LabelContainer>
+        <StyledLabelContainer>
           {data.map((v) => (
-            <LabelWrapper
+            <StyledLabel
               key={v.id}
               $status={active === v.id ? 'active' : 'inactive'}
               $disabled={disabled ? 'disabled' : 'enabled'}
-              onClick={() => handleClick(v.id)}
+              onClick={() => handleOnClick(v.id)}
             >
               {v.value}
-            </LabelWrapper>
+            </StyledLabel>
           ))}
-        </LabelContainer>
+        </StyledLabelContainer>
       )}
     </>
   )
@@ -41,25 +41,27 @@ const Label = (props: CardProps) => {
 
 export default Label
 
-const LabelContainer = styled.div`
-  display: inline-flex;
+const StyledLabelContainer = styled.div`
+  display: flex;
   flex-wrap: wrap;
   padding-top: 8px;
   gap: 5px;
 `
 
-const LabelWrapper = styled.div<{
+const StyledLabel = styled.div<{
   $status: 'active' | 'inactive'
   $disabled: 'disabled' | 'enabled'
 }>`
   border-radius: 4px;
   padding: 4px;
   cursor: pointer;
-  font-size: 0.725rem;
+  font-size: ${(props) => props.theme.fontSizes.sm};
   width: max-content;
-  color: #1e1f20;
+  color: ${({ theme }) => theme.color.black};
   background-color: ${(props) =>
-    props.$status === 'active' ? '#C3D9FF' : '#f3f3f5'};
+    props.$status === 'active'
+      ? props.theme.color.skyblue
+      : props.theme.color.sand};
   pointer-events: ${(props) =>
     props.$disabled === 'disabled' ? 'none' : 'all'};
 `

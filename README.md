@@ -1,11 +1,12 @@
-## GA4 ChatBot
+### **쿼리 생성에 특화된 챗봇 크롬 익스텐션** 
 
-### **개요**
+#### 1. Tech Stack
+- React
+- TypeScript
+- Styled-components
+- Vite 커스텀
 
-GA4 고객사를 위한 챗봇 크롬 익스텐션
-
-### 1. Commit Messge Convention
-
+#### 2. Commit Message Convention
 - feat : 새로운 기능 추가
 - fix : 버그 수정
 - docs : 문서 변경
@@ -16,3 +17,5 @@ GA4 고객사를 위한 챗봇 크롬 익스텐션
 - perf: 성능 향상을 위한 코드 변경
 - build: 빌드 시스템 또는 외부 종속성 변경
 - ci: CI/CD 설정 변경 및 스크립트 수정
+
+### 3. 

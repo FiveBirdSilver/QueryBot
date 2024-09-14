@@ -5,17 +5,10 @@
   font-style: normal;
 }
 
-#gen_AIon_root * {
-  font-family: Pretendard-R sans-serif !important;
-}
-
-#gen_AIon_root p {
+body , p{
   margin: 0;
 }
 
-#gen_AIon_root a {
-  color: #4b89d4;
-}
 
 @keyframes loading {
   0% {

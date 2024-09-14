@@ -1,4 +1,4 @@
-import { InsightManual, QnaManual, QueryManual } from '../utils/constants'
+import { InsightManual, QnaManual, QueryManual } from '@/utils/constants'
 import { useMemo } from 'react'
 
 const useChatType = (selectChat: string) => {

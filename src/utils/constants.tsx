@@ -1,19 +1,16 @@
 export const BasicManual =
-  '안녕하세요! 저는 GA4 챗봇입니다.\n제가 도와드릴 수 있는 작업을 안내할게요.\n\n어시스턴스를 선택하거나 질문을 통해 질문할 수 있습니다.'
-
-export const BigQueryManual =
-  '쿼리문을 검증하고 필요 자원을 확인하시겠습니까 ? '
+  '안녕하세요! 저는 쿼리 생성 어시스턴스입니다.\n제가 도와드릴 수 있는 작업을 안내할게요.\n\n어시스턴스를 선택하거나 질문을 통해 질문할 수 있습니다.'
 
 export const SelectManual = [
   {
     id: 'qna',
     title: 'QnA Assistant',
-    content: 'GA4를 사용하는 방법에 대해 질문해보세요.',
+    content: '챗봇을 사용하는 방법에 대해 질문해보세요.',
   },
   {
     id: 'query/generate',
     title: 'Query Assistant',
-    content: 'SQL문을 생성하고 BigQuery에서 원하는 데이터를 조회해보세요.',
+    content: 'Query를 생성하고 원하는 데이터를 조회해보세요.',
   },
   {
     id: 'insight',
@@ -23,12 +20,12 @@ export const SelectManual = [
 ]
 
 export const QnaManual = {
-  text: 'QnA Assistant에서는 추천 카테고리를 선택하여 질문을 구체화하거나 채팅을 통해 GA4 관련 내용에 대해 답변할 수 있습니다.',
+  text: 'QnA Assistant에서는 추천 카테고리를 선택하여 질문을 구체화하거나 채팅을 통해 관련 내용에 대해 답변할 수 있습니다.',
   category: [
     {
       id: 'getting-started',
-      value: '애널리틱스 시작하기',
-      text: `애널리틱스 시작하기 카테고리에서는 GA4를 이용하여 웹사이트나 앱의 데이터를 수집하고 분석하는 데 필요한 기본적인 설정 방법에 대한 질문을 처리합니다. 궁금한 사항을 질문하세요.
+      value: '시작하기',
+      text: `웹사이트나 앱의 데이터를 수집하고 분석하는 데 필요한 기본적인 설정 방법에 대한 질문을 처리합니다. 궁금한 사항을 질문하세요.
 `,
     },
     {
@@ -42,25 +39,20 @@ export const QnaManual = {
       text: `보고 및 탐색 카테고리에서는 웹사이트 또는 앱에서 수집된 데이터에 대한 다양한 질문을 처리합니다. 궁금한 사항을 질문하세요.`,
     },
     {
-      id: 'ads-contribution-analysis',
-      value: '광고 및 기여 분석',
-      text: '',
-    },
-    {
       id: 'audience-remarketing',
       value: '잠재고객 및 리마케팅',
-      text: `잠재고객 및 리마케팅 카테고리에서는 Google 애널리틱스 4(GA4)를 이용하여 웹사이트나 앱의 사용자를 세분화하고, 이들을 대상으로 맞춤형 마케팅을 진행하기 위한 다양한 기능과 설정 방법에 대한 질문을 처리합니다. 궁금한 사항을 질문하세요.`,
+      text: `잠재고객 및 리마케팅 카테고리에서는 웹사이트나 앱의 사용자를 세분화하고, 이들을 대상으로 맞춤형 마케팅을 진행하기 위한 다양한 기능과 설정 방법에 대한 질문을 처리합니다. 궁금한 사항을 질문하세요.`,
     },
     {
       id: 'account-property-user-management',
       value: '계정, 속성, 사용자 관리하기',
-      text: `계정, 속성, 사용자 관리하기 카테고리에서는 Google 애널리틱스 4(GA4) 계정을 처음 설정하거나, 기존 계정을 관리하고, 여러 사용자와 협업하는 방법에 대한 질문을 처리합니다. 궁금한 사항을 질문하세요.`,
+      text: `계정, 속성, 사용자 관리하기 카테고리에서는 처음 설정하거나, 기존 계정을 관리하고, 여러 사용자와 협업하는 방법에 대한 질문을 처리합니다. 궁금한 사항을 질문하세요.`,
     },
   ],
 }
 
 export const QueryManual = {
-  text: 'Query Assistant에서는 유저가 알고싶어하는 데이터를 조회할 수 있는 sql문을 생성하고 BigQuery를 통해 데이터를 조회 할 수 있는 기능을 제공합니다.',
+  text: 'Query Assistant에서는 유저가 알고싶어하는 데이터를 조회할 수 있는 Query을 생성하고 데이터를 조회 할 수 있는 기능을 제공합니다.',
   category: [
     {
       id: 'customer-acquisition-data',
@@ -95,155 +87,8 @@ export const InsightManual = {
   category: [],
 }
 
-export const InsightChatData_1 = [
-  '방문 사용자의 프로모션 페이지부터 구매완료 페이지까지의 퍼널을 확인하는 방법은 다음과 같습니다.\n',
-  '### 유입경로 탐색분석 활용\n',
-  "- 시작 단계에 `page_view` 이벤트를 추가하고, '매개변수 추가'에서 `page_location`을 추가하여 프로모션 페이지 URL을 필터로 설정합니다.\n",
-  "- 다음 단계에 `page_view` 이벤트를 추가하고, '매개변수 추가'에서 `page_location`을 추가하여 상품상세 페이지 URL을 필터로 설정합니다.\n",
-  "- 다음 단계에 `page_view` 이벤트를 추가하고, '매개변수 추가'에서 `page_location`을 추가하여 주문서 페이지 URL을 필터로 설정합니다.\n",
-  "- 다음 단계에 `page_view` 이벤트를 추가하고, '매개변수 추가'에서 `page_location`을 추가하여 주문완료 페이지 URL을 필터로 설정합니다.\n",
-  '- 퍼널 시각화를 통해 각 단계별 사용자 수와 이탈률을 확인할 수 있습니다.',
-]
+export const googleDescription =
+  "Find information that's relevant and useful to you based on your behavior in Google Analytics"
 
-export const InsightChatData_2 = [
-  '해당 값을 추출할 수 있는 쿼리문을 생성합니다.\n',
-  '```sql\nWITH\n',
-  '  -- 프로모션 페이지 조회 이벤트\n',
-  '  promo_page_views AS (\n',
-  '    SELECT\n',
-  '      event_date,\n',
-  '      user_pseudo_id,\n',
-  "      SAFE_CAST(JSON_EXTRACT(event_params, '$.product_id') AS STRING) AS product_id,\n",
-  '      MAX(value) AS page_location\n',
-  '    FROM\n',
-  '      `your_project.your_dataset.events_*`\n',
-  '    WHERE\n',
-  "      event_name = 'page_view'\n",
-  "      AND PARSE_DATE('%Y%m%d', _TABLE_SUFFIX) BETWEEN '20230101' AND '20231231'\n",
-  "      AND SAFE_CAST(JSON_EXTRACT(event_params, '$.ga_page_path') AS STRING) LIKE '%your_promo_page_url%'\n",
-  "      AND SAFE_CAST(JSON_EXTRACT(event_params, '$.product_id') AS STRING) IN ('A', 'B', 'C')\n",
-  '    GROUP BY\n',
-  '      event_date,\n',
-  '      user_pseudo_id,\n',
-  '      product_id\n',
-  '  ),\n',
-  '\n',
-  '  -- 상품 상세 페이지 조회 이벤트\n',
-  '  product_detail_page_views AS (\n',
-  '    SELECT\n event_date\n user_pseudo_id\n',
-  "      SAFE_CAST(JSON_EXTRACT(event_params, '$.product_id') AS STRING) AS product_id,\n MAX(value) AS page_location\n",
-  '    FROM\n',
-  '      `your_project.your_dataset.events_*`\n',
-  '    WHERE\n',
-  "      event_name = 'page_view'\n",
-  "      AND SAFE_CAST(JSON_EXTRACT(event_params, '$.ga_page_path') AS STRING) LIKE '%your_product_detail_page_url%'\n",
-  "      AND SAFE_CAST(JSON_EXTRACT(event_params, '$.product_id') AS STRING) IN ('A', 'B', 'C')\n",
-  '    GROUP BY\n event_date\n user_pseudo_id\n product_id\n',
-  '  ),\n',
-  '\n',
-  '  -- 주문서 페이지 조회 이벤트\n',
-  '  order_page_views AS (\n',
-  '    SELECT\n event_date,\n user_pseudo_id,\n',
-  "      SAFE_CAST(JSON_EXTRACT(event_params, '$.product_id') AS STRING) AS product_id,\n",
-  '      MAX(value) AS page_location\n',
-  '    FROM\n',
-  '      `your_project.your_dataset.events_*`\n',
-  '    WHERE\n',
-  "      event_name = 'page_view'\n",
-  "      AND SAFE_CAST(JSON_EXTRACT(event_params, '$.ga_page_path') AS STRING) LIKE '%your_order_page_url%'\n",
-  "      AND SAFE_CAST(JSON_EXTRACT(event_params, '$.product_id') AS STRING) IN ('A', 'B', 'C')\n",
-  '    GROUP BY\n  event_date \n user_pseudo_id \n product_id\n',
-  '  ),\n',
-  '\n',
-  '  -- 주문 완료 페이지 조회 이벤트\n',
-  '  order_completed_page_views AS (\n',
-  '    SELECT\n',
-  '      event_date,\n',
-  '      user_pseudo_id,\n',
-  "      SAFE_CAST(JSON_EXTRACT(event_params, '$.product_id') AS STRING) AS product_id,\n",
-  '      MAX(value) AS page_location\n',
-  '    FROM\n',
-  '      `your_project.your_dataset.events_*`\n',
-  '    WHERE\n',
-  "      event_name = 'purchase'\n",
-  "      AND SAFE_CAST(JSON_EXTRACT(event_params, '$.product_id') AS STRING) IN ('A', 'B', 'C')\n",
-  '    GROUP BY\n',
-  '      event_date,\n',
-  '      user_pseudo_id,\n',
-  '      product_id\n',
-  '  )\n',
-  '\n',
-  'SELECT\n',
-  '  promo_page_views.product_id,\n',
-  '  COUNT(DISTINCT promo_page_views.user_pseudo_id) AS total_users,\n',
-  '  COUNT(DISTINCT product_detail_page_views.user_pseudo_id) AS reached_product_detail,\n',
-  '  COUNT(DISTINCT order_page_views.user_pseudo_id) AS reached_order_page,\n',
-  '  COUNT(DISTINCT order_completed_page_views.user_pseudo_id) AS reached_order_completed,\n',
-  '  ROUND(SAFE_DIVIDE(COUNT(DISTINCT product_detail_page_views.user_pseudo_id)\n',
-  '  COUNT(DISTINCT promo_page_views.user_pseudo_id)) * 100, 2)\n',
-  'AS product_detail_conversion_rate,\n',
-  '  ROUND(SAFE_DIVIDE(COUNT(DISTINCT order_page_views.user_pseudo_id)\n',
-  'COUNT(DISTINCT product_detail_page_views.user_pseudo_id)) * 100, 2)\n',
-  'AS order_page_conversion_rate,\n',
-  '  ROUND(SAFE_DIVIDE(COUNT(DISTINCT order_completed_page_views.user_pseudo_id)\n',
-  'COUNT(DISTINCT order_page_views.user_pseudo_id)) * 100, 2)\n',
-  'AS order_completed_conversion_rate\n',
-  'FROM\n',
-  '  promo_page_views\n',
-  'LEFT JOIN product_detail_page_views\n',
-  'USING(user_pseudo_id, event_date, product_id)\n',
-  'LEFT JOIN order_page_views\n',
-  'USING(user_pseudo_id, event_date, product_id)\n',
-  'LEFT JOIN order_completed_page_views\n',
-  'USING(user_pseudo_id, event_date, product_id)\n',
-  'GROUP BY\n',
-  '  promo_page_views.product_id\n',
-  'ORDER BY\n',
-  '  total_users DESC;\n',
-  '```',
-]
-
-export const InsightChatData_6 = [
-  '### 5월 퍼널 보고서\n',
-
-  '#### 개요\n',
-  '프로덕트별 퍼널 단계 차트\n',
-
-  '상품상세 페이지 이탈률 분석\n',
-
-  '주문서 페이지 이탈률 분석\n',
-
-  '주문완료 페이지 이탈률 분석\n\n\n',
-
-  '#### 인사이트 도출\n\n\n',
-
-  '![단계별사용자수](https://chatbot-api-ver2-296869084219.asia-northeast3.run.app/images/product.png)\n\n',
-  '프로모션, 상품상세, 주문서, 주문완료 페이지에서의 사용자 수 변화 퍼널분석 입니다.\n',
-
-  '##### 상품상세 페이지 이탈률 (22.0%):\n',
-  '- 이탈률이 상대적으로 낮습니다. 이 단계에서의 개선은 필요하지 않을 수 있지만, 프로모션에서 상품상세 페이지로 이동할 수 있도록 매력적인 내용을 추가하면 도움이 될 것입니다.\n',
-
-  '##### 주문서 페이지 이탈률 (60.2%):\n',
-  '- 이탈률이 매우 높습니다. 이는 상품상세에서 주문서 페이지로의 전환이 제대로 이루어지지 않고 있음을 나타냅니다.\n',
-  '해결 방안:\n',
-  '- 주문서 페이지의 사용성 검토: 폼의 복잡성, 필수 입력 항목, 오류 메시지 등을 점검하고, 사용자 경험을 개선합니다.\n',
-  '- 결제 프로세스를 간소화하여 사용자가 쉽게 주문을 완료할 수 있도록 합니다.\n',
-  '- 결제 방법이나 배송 옵션을 다양화하여 사용자의 선택지를 넓힙니다.\n',
-
-  '##### 주문완료 페이지 이탈률 (24.2%):\n',
-  '- 이탈률이 중간 수준입니다. 주문서 페이지에서 주문완료 페이지로의 전환에서 일부 사용자가 이탈하고 있음을 의미합니다.\n',
-  '해결 방안:\n',
-  '- 주문 완료 후의 피드백 및 확인 메시지를 명확하게 전달하여 사용자에게 주문이 완료되었음을 확실히 인지시킵니다.\n',
-  '- 주문 완료 후 추가적인 유도 행동(예: 다음 구매를 위한 추천, 소셜 미디어 공유 옵션 등)을 제공하여 사용자의 만족도를 높입니다.\n',
-
-  '##### 인사이트\n',
-  '가장 높은 이탈률을 보이는 주문서 페이지의 UI/UX를 사용자 친화적으로 변경하여 사용자 경험을 개선하고 전자상거래를 개선하시기 바랍니다.\n',
-]
-
-export const InsightTableData = {
-  상품ID: [3345, 3254, 3347],
-  프로모션: [42652, 32151, 29674],
-  상품상세: [33265, 20512, 12515],
-  주문서: [13265, 8145, 4034],
-  주문완료: [10056, 5076, 2984],
-}
+export const googleHelperIcon =
+  'https://cdn.inflearn.com/public/files/courses/327264/dd050fbf-014c-49ae-beb7-907fc913c487/acc7beb5-013a-47a7-abcc-318e69b8b9aa%20(1).png'

@@ -1,137 +1,97 @@
+import React from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { materialDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { styled } from 'styled-components'
 
-const CodeBlock = ({
-  language,
-  value,
-  disallowedElements,
-}: {
+interface CodeBlockProps {
   language: string
   value: string
-  disallowedElements: any
-}) => (
-  <SyntaxHighlighter
-    language={language}
-    style={materialDark}
-    onClick={() => console.log(disallowedElements)}
-  >
+}
+
+const CodeBlock: React.FC<CodeBlockProps> = ({ language, value }) => (
+  <SyntaxHighlighter language={language} style={materialDark}>
     {value}
   </SyntaxHighlighter>
 )
 
+const commonHeadingStyle = {
+  margin: '0.5em 0',
+  color: '#fff',
+}
+
+const commonTextStyle = {
+  fontSize: '0.785rem',
+  margin: '0.5em 0',
+}
+
+const headingComponents = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].reduce(
+  (acc, tag) => {
+    acc[tag] = styled(tag)`
+      font-size: ${tag === 'h4'
+        ? '0.925rem'
+        : tag === 'h1' || tag === 'h2' || tag === 'h3'
+          ? '1rem'
+          : '0.785rem'};
+      ${commonHeadingStyle}
+    `
+    return acc
+  },
+  {} as Record<string, React.ComponentType<any>>
+)
+
+const StyledParagraph = styled.p`
+  ${commonTextStyle}
+`
+
+const StyledList = styled.ul`
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+`
+
+const StyledListItem = styled.li`
+  margin: 0.25em 0;
+`
+
+const StyledBlockquote = styled.blockquote`
+  border-left: 4px solid #ccc;
+  padding-left: 1em;
+  margin: 0.5em;
+`
+
+const StyledHr = styled.hr`
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin: 1em 0;
+`
+
+const StyledStrong = styled.strong`
+  font-weight: bold;
+`
+
 const MarkdownRenderer = styled(ReactMarkdown).attrs({
   remarkPlugins: [remarkGfm],
   components: {
-    code: ({
-      node,
-      inline,
-      className,
-      disallowedElements,
-      children,
-      ...props
-    }: any) =>
+    code: ({ node, inline, className, children, ...props }: any) =>
       !inline ? (
         <CodeBlock
-          language={className?.replace('language-', '') || 'text'}
+          language={(className || '').replace('language-', '') || 'text'}
           value={String(children).replace(/\n$/, '')}
-          disallowedElements={disallowedElements}
         />
       ) : (
         <code className={className} {...props}>
           {children}
         </code>
       ),
-    h1: (props: any) => (
-      <h1
-        style={{
-          fontSize: '1rem',
-          margin: '0.5em 0',
-          color: '#fff',
-        }}
-      >
-        {props.children}
-      </h1>
-    ),
-    h2: (props: any) => (
-      <h2
-        style={{
-          fontSize: '1rem',
-          margin: '0.5em 0',
-          color: '#fff',
-        }}
-      >
-        {props.children}
-      </h2>
-    ),
-    h3: (props: any) => (
-      <h3
-        {...props}
-        style={{
-          fontSize: '1rem',
-          margin: '0.5em 0',
-          color: '#fff',
-        }}
-      >
-        {props.children}
-      </h3>
-    ),
-    h4: (props: any) => (
-      <h4
-        {...props}
-        style={{
-          fontSize: '0.925rem',
-          margin: '0.5em 0',
-          color: '#fff',
-        }}
-      >
-        {props.children}
-      </h4>
-    ),
-    h5: (props: any) => (
-      <h5 {...props} style={{ fontSize: '0.785rem', margin: '0.5em 0' }}>
-        {props.children}
-      </h5>
-    ),
-    h6: (props: any) => (
-      <h6 {...props} style={{ fontSize: '0.785rem', margin: '0.5em 0' }}>
-        {props.children}
-      </h6>
-    ),
-    p: (props: any) => (
-      <p {...props} style={{ fontSize: '0.785rem', margin: '0.5em 0' }} />
-    ),
-    ul: (props: any) => (
-      <ul {...props} style={{ paddingLeft: '1.5em', margin: '0.5em 0' }} />
-    ),
-    ol: (props: any) => (
-      <ol {...props} style={{ paddingLeft: '1.5em', margin: '0.5em 0' }} />
-    ),
-    li: (props: any) => <li {...props} style={{ margin: '0.25em 0' }} />,
-    pre: (props: any) => (
-      <li {...props} style={{ margin: '0.5em', cursor: 'pointer' }} />
-    ),
-    blockquote: (props: any) => (
-      <blockquote
-        {...props}
-        style={{
-          borderLeft: '4px solid #ccc',
-          paddingLeft: '1em',
-          margin: '0.5em',
-        }}
-      />
-    ),
-    hr: (props: any) => (
-      <hr
-        {...props}
-        style={{ border: '0', borderTop: '1px solid #ccc', margin: '1em 0' }}
-      />
-    ),
-    strong: (props: any) => (
-      <strong {...props} style={{ fontWeight: 'bold' }} />
-    ),
+    ...headingComponents,
+    p: StyledParagraph,
+    ul: StyledList,
+    ol: StyledList,
+    li: StyledListItem,
+    blockquote: StyledBlockquote,
+    hr: StyledHr,
+    strong: StyledStrong,
   },
 })``
 

@@ -19,10 +19,15 @@ export default Button
 const StyledButton = styled.button<{
   $status: 'primary' | 'cancel'
 }>`
-  font-size: 0.725rem;
+  font-size: ${(props) => props.theme.fontSizes.sm};
   background-color: ${(props) =>
-    props.$status === 'primary' ? '#417DF7' : '#FFFFFF'};
-  color: ${(props) => (props.$status === 'primary' ? '#FFFFFF' : '#444444')};
+    props.$status === 'primary'
+      ? props.theme.color.blue_200
+      : props.theme.color.white};
+  color: ${(props) =>
+    props.$status === 'primary'
+      ? props.theme.color.white
+      : props.theme.color.gray_400};
   border-radius: 4px;
   border: none;
   padding: 4px 8px;

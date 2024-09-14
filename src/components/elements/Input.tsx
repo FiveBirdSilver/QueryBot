@@ -33,7 +33,6 @@ const Input = (props: InputProps) => {
   }
 
   const handleOnKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    // 한글은 자음과 모음의 조합으로 끝난상태인지 파악하기 어렵기 때문에 방어 필요
     if (event.nativeEvent.isComposing) return
 
     if (event.code === 'Enter') {
@@ -43,25 +42,25 @@ const Input = (props: InputProps) => {
   }
 
   return (
-    <StyledInputContainer>
-      <StyledAddFileIcon />
-      <StyledInputWrapper>
-        <StyledInput
+    <InputContainer>
+      <FileUploadIcon />
+      <InputSection>
+        <TextInput
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => handleOnKeyDown(e)}
           disabled={disabled}
           placeholder='질문하기'
         />
-        <StyledSubmitIcon onClick={handleOnSubmit} />
-      </StyledInputWrapper>
-    </StyledInputContainer>
+        <SubmitButton onClick={handleOnSubmit} />
+      </InputSection>
+    </InputContainer>
   )
 }
 
 export default Input
 
-const StyledInputContainer = styled.div`
+const InputContainer = styled.div`
   width: -webkit-fill-available;
   position: absolute;
   bottom: 25px;
@@ -72,7 +71,7 @@ const StyledInputContainer = styled.div`
   padding: 0 20px 10px 20px;
 `
 
-const StyledInputWrapper = styled.div`
+const InputSection = styled.div`
   position: relative;
   display: flex;
   width: 100%;
@@ -82,13 +81,13 @@ const StyledInputWrapper = styled.div`
   padding: 5px 10px;
 `
 
-const StyledInput = styled(TextareaAutosize)`
+const TextInput = styled(TextareaAutosize)`
   width: -webkit-fill-available;
   outline: none;
   border: none !important;
   color: #cdced0 !important;
   resize: none;
-  font-size: 0.765rem !important;
+  font-size: ${(props) => props.theme.fontSizes.md};
   max-height: 150px;
   background-color: transparent;
   overflow-y: auto;
@@ -100,14 +99,14 @@ const StyledInput = styled(TextareaAutosize)`
   }
 `
 
-const StyledAddFileIcon = styled(AiOutlinePlusCircle)`
+const FileUploadIcon = styled(AiOutlinePlusCircle)`
   color: #444654;
   font-size: 1.45rem;
   margin-top: 0.3rem;
   cursor: pointer;
 `
 
-const StyledSubmitIcon = styled(IoArrowUpCircle)`
+const SubmitButton = styled(IoArrowUpCircle)`
   color: #4b89d4;
   font-size: 1.45rem;
   cursor: pointer;

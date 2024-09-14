@@ -1,8 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { SelectManual } from 'utils/constants'
-import useOpen from 'hooks/useOpen'
+import { SelectManual } from '@/utils/constants'
+import useViewPort from '@/hooks/useViewPort'
 
 interface CardProps {
   active: string
@@ -12,34 +12,36 @@ interface CardProps {
 
 const Card = (props: CardProps) => {
   const { active, setActive, disabled } = props
-  const { condition } = useOpen()
+  const { condition } = useViewPort()
 
   return (
-    <CardContainer $condition={condition}>
+    <StyledCardContainer $condition={condition === 'wide' ? 'wide' : 'basic'}>
       {SelectManual.map((v) => (
-        <CardWrapper
+        <StyledCard
           key={v.id}
           $status={active === v.id ? 'active' : 'inactive'}
           $disabled={disabled ? 'disabled' : 'enabled'}
           onClick={() => setActive(v.id)}
         >
-          <CardBox>
-            <CardTitle $status={active === v.id ? 'active' : 'inactive'}>
+          <StyledCardContent>
+            <StyledCardTitle $status={active === v.id ? 'active' : 'inactive'}>
               {v.title}
-            </CardTitle>
-            <CardContent $status={active === v.id ? 'active' : 'inactive'}>
+            </StyledCardTitle>
+            <StyledCardDescription
+              $status={active === v.id ? 'active' : 'inactive'}
+            >
               {v.content}
-            </CardContent>
-          </CardBox>
-        </CardWrapper>
+            </StyledCardDescription>
+          </StyledCardContent>
+        </StyledCard>
       ))}
-    </CardContainer>
+    </StyledCardContainer>
   )
 }
 
 export default Card
 
-const CardContainer = styled.div<{ $condition: 'basic' | 'wide' }>`
+const StyledCardContainer = styled.div<{ $condition: 'basic' | 'wide' }>`
   display: grid;
   grid-template-columns: ${(props) =>
     props.$condition === 'wide' ? '1fr 1fr 1fr' : 'auto'};
@@ -47,7 +49,7 @@ const CardContainer = styled.div<{ $condition: 'basic' | 'wide' }>`
   gap: 10px;
 `
 
-const CardWrapper = styled.div<{
+const StyledCard = styled.div<{
   $status: 'active' | 'inactive'
   $disabled: 'disabled' | 'enabled'
 }>`
@@ -58,27 +60,35 @@ const CardWrapper = styled.div<{
   justify-content: center;
   padding: 6px 8px;
   cursor: pointer;
-  color: #131314;
+  color: ${(props) => props.theme.color.black};
   background-color: ${(props) =>
-    props.$status === 'active' ? '#C3D9FF' : '#343541'};
+    props.$status === 'active'
+      ? props.theme.color.skyblue
+      : props.theme.color.gray_300};
   pointer-events: ${(props) =>
     props.$disabled === 'disabled' ? 'none' : 'all'};
 `
 
-const CardBox = styled.div`
+const StyledCardContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 5px;
 `
 
-const CardTitle = styled.p<{ $status: 'active' | 'inactive' }>`
-  font-size: 0.875rem;
+const StyledCardTitle = styled.p<{ $status: 'active' | 'inactive' }>`
+  font-size: ${(props) => props.theme.fontSizes.xl};
   font-weight: bold;
-  color: ${(props) => (props.$status === 'active' ? '#1E1F20' : '#FFFFFF')};
+  color: ${(props) =>
+    props.$status === 'active'
+      ? props.theme.color.gray_500
+      : props.theme.color.white};
 `
 
-const CardContent = styled.p<{ $status: 'active' | 'inactive' }>`
-  font-size: 0.725rem;
+const StyledCardDescription = styled.p<{ $status: 'active' | 'inactive' }>`
+  font-size: ${(props) => props.theme.fontSizes.sm};
   text-align: justify;
-  color: ${(props) => (props.$status === 'active' ? '#1E1F20' : '#B8B8B8')};
+  color: ${(props) =>
+    props.$status === 'active'
+      ? props.theme.color.gray_500
+      : props.theme.color.gray_200};
 `

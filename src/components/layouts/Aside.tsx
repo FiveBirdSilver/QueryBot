@@ -3,38 +3,37 @@ import { FaRegSquarePlus, FaCircleQuestion } from 'react-icons/fa6'
 import { IoIosArrowDown } from 'react-icons/io'
 import { GrHistory } from 'react-icons/gr'
 
-import useOpen from '../../hooks/useOpen'
+import useViewPort from '@/hooks/useViewPort'
 
 interface AsideProps {
   onClick: () => void
 }
+
 const Aside = (props: AsideProps) => {
   const { onClick } = props
-  const { condition } = useOpen()
+  const { condition } = useViewPort()
 
   return (
-    <AsideContainer $condition={condition}>
-      <AsideWrapper>
-        {condition === 'wide' ? (
-          <>
-            <StyleMenu onClick={onClick}>
-              <FaRegSquarePlus />
-              <p>New Chat</p>
-            </StyleMenu>
-            <StyleMenu>
-              <GrHistory />
-              <p>History</p>
-              <StyleArrowIcons />
-            </StyleMenu>
-          </>
-        ) : (
-          <>
-            <FaRegSquarePlus onClick={onClick} />
+    <AsideContainer $condition={condition === 'wide' ? 'wide' : 'basic'}>
+      {condition === 'wide' ? (
+        <MenuList>
+          <MenuItem onClick={onClick}>
+            <FaRegSquarePlus />
+            <MenuItemText>New Chat</MenuItemText>
+          </MenuItem>
+          <MenuItem>
             <GrHistory />
-          </>
-        )}
-      </AsideWrapper>
-      <FaCircleQuestion color='#4B89D4' />
+            <MenuItemText>History</MenuItemText>
+            <ArrowIcon />
+          </MenuItem>
+        </MenuList>
+      ) : (
+        <MenuList>
+          <FaRegSquarePlus onClick={onClick} />
+          <GrHistory />
+        </MenuList>
+      )}
+      <HelpIcon />
     </AsideContainer>
   )
 }
@@ -43,24 +42,24 @@ export default Aside
 
 const AsideContainer = styled.div<{ $condition: 'basic' | 'wide' }>`
   align-items: ${(props) => (props.$condition === 'wide' ? 'start' : 'center')};
-  background-color: #1e1f20;
-  z-index: 3;
+  background-color: ${(props) => props.theme.color.gray_500};
   display: flex;
   justify-content: space-between;
   flex-direction: column;
-  color: #ffffff;
-  font-size: 1rem;
+  color: ${({ theme }) => theme.color.white};
+  font-size: ${(props) => props.theme.fontSizes.xxl};
   padding: ${(props) =>
     props.$condition === 'wide' ? '15px 20px' : '15px 10px'};
   border-bottom-left-radius: 1rem;
-  min-width: ${(props) => (props.$condition === 'wide' ? '100px' : 'auto')};
+  min-width: 30px;
+  z-index: 2;
   svg {
     cursor: pointer;
     font-size: 14px;
   }
 `
 
-const AsideWrapper = styled.div`
+const MenuList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 25px;
@@ -68,20 +67,25 @@ const AsideWrapper = styled.div`
   align-items: center;
 `
 
-const StyleMenu = styled.div`
+const MenuItem = styled.div`
   width: 100%;
   display: flex;
   position: relative;
   cursor: pointer;
   gap: 10px;
   align-items: center;
-
-  p {
-    font-size: 14px;
-  }
+  min-width: 100px;
 `
 
-const StyleArrowIcons = styled(IoIosArrowDown)`
+const MenuItemText = styled.p`
+  font-size: ${(props) => props.theme.fontSizes.xl};
+`
+
+const ArrowIcon = styled(IoIosArrowDown)`
   position: absolute;
   right: 0;
+`
+
+const HelpIcon = styled(FaCircleQuestion)`
+  color: ${(props) => props.theme.color.blue_100};
 `

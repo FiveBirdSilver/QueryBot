@@ -5,9 +5,9 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { styled } from 'styled-components'
 import dayjs from 'dayjs'
 
-import Button from 'components/elements/Button'
-import useOpen from 'hooks/useOpen'
-import useDate from 'hooks/useDate'
+import Button from '@/components/elements/Button'
+import useDate from '@/hooks/useDate'
+import useViewPort from '@/hooks/useViewPort'
 
 interface DatePickerProps {
   selectCategory: string
@@ -16,7 +16,7 @@ interface DatePickerProps {
 const CustomDatePicker = (props: DatePickerProps) => {
   const { selectCategory } = props
 
-  const { condition } = useOpen()
+  const { condition } = useViewPort()
   const { setDate } = useDate()
 
   const [startDate, setStartDate] = useState<Date>(new Date('2020/11/01'))
@@ -53,10 +53,12 @@ const CustomDatePicker = (props: DatePickerProps) => {
   return (
     <>
       {isView && (
-        <DatePickerView>
+        <DateSelectionContainer>
           <span>조회할 기간을 선택해 주세요.</span>
-          <DatePickerContainer $condition={condition}>
-            <DatePickerWrapper>
+          <DateSelectionLayout
+            $condition={condition === 'wide' ? 'wide' : 'basic'}
+          >
+            <DateRangePicker>
               <DatePicker
                 locale={ko}
                 popperPlacement='bottom-end'
@@ -81,9 +83,9 @@ const CustomDatePicker = (props: DatePickerProps) => {
                 minDate={startDate}
                 disabled={!isButtonView}
               />
-            </DatePickerWrapper>
+            </DateRangePicker>
             {isButtonView && (
-              <ButtonContainer>
+              <ActionButtons>
                 <Button
                   text={'건너뛰기'}
                   status={'cancel'}
@@ -94,35 +96,37 @@ const CustomDatePicker = (props: DatePickerProps) => {
                   status={'primary'}
                   onclick={() => okDatePicker()}
                 />
-              </ButtonContainer>
+              </ActionButtons>
             )}
-          </DatePickerContainer>
-        </DatePickerView>
+          </DateSelectionLayout>
+        </DateSelectionContainer>
       )}
     </>
   )
 }
+
 export default CustomDatePicker
 
-const DatePickerView = styled.div`
+const DateSelectionContainer = styled.div`
   margin-top: 8px;
 `
 
-const DatePickerContainer = styled.div<{ $condition: 'basic' | 'wide' }>`
+const DateSelectionLayout = styled.div<{ $condition: 'basic' | 'wide' }>`
   position: relative;
   display: flex;
   flex-direction: ${(props) =>
     props.$condition === 'basic' ? 'column' : 'row'};
   gap: 10px;
-
   margin: 10px 0 5px 0;
 `
-const DatePickerWrapper = styled.div`
+
+const DateRangePicker = styled.div`
   display: flex;
   gap: 10px;
   align-items: center;
 `
-const ButtonContainer = styled.div`
+
+const ActionButtons = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 8px;

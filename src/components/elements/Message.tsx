@@ -1,12 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { styled } from 'styled-components'
 import { MdOutlineFileDownload } from 'react-icons/md'
 import { PiCopySimple } from 'react-icons/pi'
 import { FiMoreHorizontal } from 'react-icons/fi'
 import { TbRefresh } from 'react-icons/tb'
 import { IoMdCheckmark } from 'react-icons/io'
+
 import Skeleton from '@/components/elements/Skeleton'
-import Button from '@/components/elements/Button'
 import copyToClipboard from '@/utils/copyToClipboard'
 import MarkdownRenderer from '@/utils/markDownRender'
 import { googleDescription, googleHelperIcon } from '@/utils/constants'
@@ -17,20 +17,15 @@ interface MessageProps {
   id?: string
   type: 'basic' | 'queries' | 'answers'
   text: string
-  actionId?: string
-  onCancel?: () => void
-  onOk?: () => void
   setRegenerate?: React.Dispatch<React.SetStateAction<string | undefined>>
   children?: React.ReactNode
 }
 
 const Message = (props: MessageProps) => {
-  const { id, type, text, actionId, onCancel, onOk, children } = props
+  const { id, type, text, children } = props
 
-  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isCopied, setIsCopied] = useState<boolean>(false)
   const [isCompleted, setIsCompleted] = useState<boolean>(false)
-  const [source, setSource] = useState<string>('')
 
   const typingText = useTypingAnimation(text)
 
@@ -40,57 +35,51 @@ const Message = (props: MessageProps) => {
     else return result[0]
   }, [typingText])
 
-  useEffect(() => {
+  const source = useMemo(() => {
     const tmpArray = typingText.split('\n')
-
     const result = tmpArray.find((msg) => msg.includes('reference_source_Url_'))
-
     const urlRegex = /["']([^"']+)["']/
     const tmp = result?.match(urlRegex)
-
-    if (tmp) setSource(tmp[1])
+    return tmp ? tmp[1] : ''
   }, [typingText])
 
-  useEffect(() => {
-    if (type === 'basic' || type === 'queries') {
-      setIsLoading(false)
-    }
-    if (type === 'answers' && typingText !== '') {
-      setIsLoading(false)
-    }
+  // 로딩
+  const isLoading = useMemo(() => {
+    return type === 'answers' && typingText === ''
   }, [typingText, type])
 
   // 답변 복사
-  const handleOnCopy = () => {
+  const handleOnCopy = useCallback(() => {
     copyToClipboard(text)
     setIsCopied(true)
     setTimeout(() => setIsCopied(false), 2000)
-  }
+  }, [text])
 
-  useDelayAction(typingText, 2000, () => {
+  // 답변이 완전히 끝난 후 기타 아이콘 나타남
+  useDelayAction(typingText, 1000, () => {
     if (type === 'answers') setIsCompleted(true)
   })
 
   return (
-    <AssistantWrapper>
+    <MessageContainer>
       {isLoading ? (
         <Skeleton />
-      ) : text && text !== 'regenerate' ? (
+      ) : (
         <>
-          <AssistantTitle $type={type}>
-            <AssistantIcons>
+          <MessageHeader $type={type}>
+            <MessageIcons>
               <span>{type === 'queries' ? 'U' : 'G'}</span>
-            </AssistantIcons>
+            </MessageIcons>
             <span>{type !== 'queries' && 'Chatbot'}</span>
-          </AssistantTitle>
+          </MessageHeader>
           {type === 'answers' ? (
             <>
-              <AssistantContent $type={type}>
+              <MessageContent $type={type} key={id}>
                 <MarkdownRenderer>{isReference}</MarkdownRenderer>
                 {source && (
-                  <SourceContainer>
+                  <SourceBox>
                     <span>출처</span>
-                    <SourceWrapper
+                    <SourceContent
                       onClick={() =>
                         window.open(
                           source?.slice(1).replace(/"\]$/, ''),
@@ -103,64 +92,47 @@ const Message = (props: MessageProps) => {
                         <p>{source?.slice(1).replace(/"\]$/, '')}</p>
                       </SourceLink>
                       <SourceDescription>{googleDescription}</SourceDescription>
-                    </SourceWrapper>
-                  </SourceContainer>
+                    </SourceContent>
+                  </SourceBox>
                 )}
-                {actionId && (
-                  <ButtonContainer>
-                    <Button
-                      text={'건너뛰기'}
-                      status={'cancel'}
-                      onclick={onCancel}
-                    />
-                    <Button text={'확인'} status={'primary'} onclick={onOk} />
-                  </ButtonContainer>
-                )}
-              </AssistantContent>
-              {actionId === undefined && actionId !== '' && isCompleted && (
-                <UtilityIconsContainer>
-                  <UtilityIcons>
+              </MessageContent>
+              {isCompleted && (
+                <UtilityBox>
+                  <UtilityItem>
                     <TbRefresh />
                     <p>Regenerate Answer</p>
-                  </UtilityIcons>
-                  <UtilityIcons>
-                    <a
-                      href='https://chatbot-api-ver2-296869084219.asia-northeast3.run.app/images/ga4_report.pdf'
-                      download='ga4_report.pdf'
-                      target='_blank'
-                      rel='noopener noreferrer'
-                    >
-                      <MdOutlineFileDownload />
-                    </a>
+                  </UtilityItem>
+                  <UtilityItem>
+                    <MdOutlineFileDownload />
                     {isCopied ? (
                       <IoMdCheckmark />
                     ) : (
                       <PiCopySimple onClick={handleOnCopy} />
                     )}
                     <FiMoreHorizontal />
-                  </UtilityIcons>
-                </UtilityIconsContainer>
+                  </UtilityItem>
+                </UtilityBox>
               )}
             </>
           ) : (
-            <AssistantContent $type={type}>
+            <MessageContent $type={type}>
               {text}
               {children}
-            </AssistantContent>
+            </MessageContent>
           )}
         </>
-      ) : null}
-    </AssistantWrapper>
+      )}
+    </MessageContainer>
   )
 }
 
 export default Message
 
-const AssistantWrapper = styled.div`
-  color: #444444;
+const MessageContainer = styled.div`
+  color: ${({ theme }) => theme.color.gray_400};
 `
 
-const AssistantTitle = styled.div<{ $type: 'basic' | 'queries' | 'answers' }>`
+const MessageHeader = styled.div<{ $type: 'basic' | 'queries' | 'answers' }>`
   display: flex;
   justify-content: ${(props) =>
     props.$type === 'queries' ? 'flex-end' : 'flex-start'};
@@ -169,38 +141,39 @@ const AssistantTitle = styled.div<{ $type: 'basic' | 'queries' | 'answers' }>`
   gap: 10px;
 
   span {
-    font-size: 0.825rem;
+    font-size: ${(props) => props.theme.fontSizes.lg};
     font-weight: bold;
-    color: #fff;
+    color: ${({ theme }) => theme.color.white};
   }
 `
 
-const AssistantIcons = styled.div`
+const MessageIcons = styled.div`
   background-color: rgb(160, 195, 255);
   width: 25px;
   height: 25px;
   border-radius: 50%;
   text-align: center;
   font-weight: bold;
-  //margin-top: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
 
   span {
-    color: #444444;
+    color: ${({ theme }) => theme.color.gray_400};
   }
 `
 
-const AssistantContent = styled.div<{ $type: 'basic' | 'queries' | 'answers' }>`
+const MessageContent = styled.div<{ $type: 'basic' | 'queries' | 'answers' }>`
   margin: ${(props) =>
     props.$type === 'queries' ? ' 0 35px 0 10px' : ' 0 10px 0 35px'} !important;
   padding: 8px 12px;
-  font-size: 0.765rem;
+  font-size: ${(props) => props.theme.fontSizes.md};
   white-space: break-spaces;
-  color: #f5f5f5;
+  color: ${({ theme }) => theme.color.white};
   background-color: ${(props) =>
-    props.$type === 'queries' ? '#4B89D4' : '#1E1F20'};
+    props.$type === 'queries'
+      ? props.theme.color.blue_100
+      : props.theme.color.gray_500};
   border-top-right-radius: ${(props) =>
     props.$type === 'queries' ? 0 : '1rem'};
   border-top-left-radius: ${(props) =>
@@ -211,18 +184,18 @@ const AssistantContent = styled.div<{ $type: 'basic' | 'queries' | 'answers' }>`
   flex-direction: column;
 
   strong {
-    color: #ffffff !important;
+    color: ${({ theme }) => theme.color.white};
   }
 
   table {
     width: 100%;
-    border: 1px solid #444444;
+    border: 1px solid ${({ theme }) => theme.color.gray_400};
     margin: 12px 0;
   }
 
   th,
   td {
-    border: 1px solid #444444;
+    border: 1px solid ${({ theme }) => theme.color.gray_400};
     padding: 4px;
     min-width: 40px;
   }
@@ -233,14 +206,14 @@ const AssistantContent = styled.div<{ $type: 'basic' | 'queries' | 'answers' }>`
   }
 `
 
-const UtilityIconsContainer = styled.div`
+const UtilityBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 15px 0 40px;
 
   svg {
-    color: #f5f5f5;
+    color: ${({ theme }) => theme.color.white};
     cursor: pointer;
     font-size: 16px;
   }
@@ -250,30 +223,23 @@ const UtilityIconsContainer = styled.div`
   }
 `
 
-const UtilityIcons = styled.div`
+const UtilityItem = styled.div`
   display: flex;
   align-items: center;
   gap: 7px;
   cursor: pointer;
 
   p {
-    color: #f5f5f5;
-    font-size: 0.625rem;
+    color: ${({ theme }) => theme.color.white};
+    font-size: ${(props) => props.theme.fontSizes.xs};
   }
 `
 
-const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 8px;
-`
-
-const SourceContainer = styled.div`
+const SourceBox = styled.div`
   margin: 15px 0;
 `
 
-const SourceWrapper = styled.div`
+const SourceContent = styled.div`
   max-width: 181px;
   border: 1px solid gray;
   border-radius: 4px;
@@ -285,7 +251,7 @@ const SourceWrapper = styled.div`
   cursor: pointer;
 
   span {
-    font-size: 0.725rem;
+    font-size: ${(props) => props.theme.fontSizes.sm};
   }
 `
 const SourceLink = styled.div`
@@ -306,7 +272,7 @@ const SourceLink = styled.div`
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    font-size: 0.625rem;
+    font-size: ${(props) => props.theme.fontSizes.sm};
   }
 `
 

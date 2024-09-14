@@ -10,7 +10,7 @@ interface ChatStreamProps {
 const useChatStream = (props: ChatStreamProps) => {
   const { url, sessionId, interface_time, queries } = props
 
-  const API_URL = 'https://chatbot-api-ver2-xbuguatioa-du.a.run.app/api'
+  const API_URL = import.meta.env.VITE_API_URL
   const [messages, setMessages] = useState<string[]>([])
 
   useEffect(() => {
