@@ -1,5 +1,3 @@
-### **쿼리 생성에 특화된 챗봇 크롬 익스텐션** 
-
 #### 1. Tech Stack
 - React
 - TypeScript
