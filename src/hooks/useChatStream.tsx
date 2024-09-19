@@ -40,12 +40,12 @@ const useChatStream = (props: ChatStreamProps) => {
         await readStream()
       } catch (err) {
         console.error(err)
-        // setError(err);
+        setMessages((pre) => [...pre, '죄송합니다. 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.'])
       }
     }
 
     if (queries) {
-      ;(async () => {
+      (async () => {
         await getResponse() // 비동기 작업을 즉시 실행 함수로 감싸서 처리
       })()
     }
